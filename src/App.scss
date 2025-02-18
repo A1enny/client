@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "IBM Plex Sans Thai", serif;
+}
+
+:root{
+ --primaryColor:hsl(221, 79%, 62%);
+ --hoverColor: hsl(221, 48%, 37%);
+ --btnHoverColor:hsl(221, 79%, 70%);
+ --whiteColor: hsl(0,0%,100%);
+ --greyText: hsl(0,0%,75%);
+ --bgColor: hsl(113,11%,85%);
+ --primaryGradient: linear-gradient(135deg, #5478EB, #45BEE9);
+ --btnColor:hsl(221, 79%, 62%);
+ --biggestfontSize: 2.5rem;
+ --h1FontSize:1.5rem;
+ --h2FontSize:1.25rem;
+ --h3FontSize:1rem;
+ --normalFontSize: .938rem;
+ --smallFontSize: .813rem;
+ --smallestFontSize: .75rem;
+}
+
+.grid{
+    display:grid;
+    align-items: center;
+    gap: 1.5rem
+}
+.flex{
+    display:flex;
+    align-items: center;
+}
+
+html{
+    font-size: 90%;
+}
+
+a{
+    text-decoration: none;
+}
+
+li{
+    list-style: none;
+}
+.showMessage{
+    display: block;
+    color: var(--whiteColor);
+    padding: 10px;
+    background: rgb(255,0,0);
+    border-radius: 3px;
+}
+.showMessage{
+    display: block;
+    color: var(--whiteColor);
+    background-color: rgb (255,0,0);
+    border-radius: 3px;
+    text-align: center;
+
+}
+
+.btn {
+    display: flex; /* ใช้ flexbox เพื่อจัดวางเนื้อหา */
+    justify-content: center; /* จัดข้อความให้อยู่กลางในแนวนอน */
+    align-items: center; /* จัดข้อความให้อยู่กลางในแนวตั้ง */
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    text-align: center;
+    background-color: var(--btnColor);
+    color: var(--whiteColor);
+    font-size: 1rem; /* กำหนดขนาดฟอนต์ */
+    transition: background-color 0.3s ease; /* เพิ่มเอฟเฟกต์การเปลี่ยนสี */
+  }
+  
+  .btn .icon {
+    transition: .3s ease;
+    margin-left: 0.5rem; /* เพิ่มระยะห่างระหว่างข้อความกับไอคอน */
+    text-align: center;
+  }
+  
+  .btn:hover {
+    background-color: var(--btnHoverColor);
+    color: var(--hoverColor);
+
+    .icon{
+        transform: translateX(5px);
+    }
+  }
+  
+
+.loginPage {
+    height: 100vh;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--primaryGradient);
+  
+    .logoContainer {
+      position: absolute;
+      top: 10px;
+      left: 2rem;
+      img {
+        width: 80px; /* ปรับขนาดโลโก้ */
+        height: auto;
+      }
+    }
+  
+    .contanier {
+      
+      height: 75vh;
+      width: 60%;
+      margin: auto;
+      border-radius: 10px;
+      background: hsl(0, 0%, 98%);
+      display: flex;
+      justify-content: center; /* จัดให้อยู่กึ่งกลางแนวนอน */
+      align-items: center; /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    }
+    .title{
+      
+        text-align: center;
+        margin-bottom: .5rem;
+    }
+    .p{
+        margin-bottom: .5rem;
+    }
+  
+    .textDiv {
+      max-height: fit-content;
+      text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+    }
+  }
+  .form {
+    max-height: fit-content;
+    gap: 1rem;
+  }
+
+  .textDiv {
+    max-height: fit-content;
+    flex-basis: 50%;
+    margin: auto;
+    text-align: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    transform: translate(-1rem);
+
+    .inputDiv{
+      max-height: fit-content;
+        text-align: center;
+        padding: 1.5rem 0;
+    }
+
+    .inputDiv {
+      max-height: fit-content;
+        width: 100%; /* ครอบคลุมความกว้างของ container */
+        margin-bottom: 1rem; /* เพิ่มช่องว่างด้านล่าง */
+        text-align: left;
+      }
+      
+      .input {
+        margin-top: .5rem;
+        display: flex;
+        align-items: center;
+        background-color: #f3f4f6; /* สีพื้นหลังของช่องกรอก */
+        border-radius: 8px; /* ขอบมน */
+        padding: 0.5rem 1rem; /* เพิ่ม padding */
+        border: 1px solid #ccc; /* ขอบ */
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+      
+        &:focus-within {
+          border-color: var(--primaryColor); /* เปลี่ยนสีขอบเมื่อโฟกัส */
+        }
+      
+        .icon {
+          margin-right: 0.5rem; /* เพิ่มระยะห่างระหว่างไอคอนกับ input */
+          color: #888; /* สีไอคอน */
+        }
+      
+        input {
+          max-height: fit-content;
+          width: 100%; /* ขยายช่องกรอกให้เต็ม */
+          border: none; /* ลบขอบของ input */
+          background: none; /* ไม่มีสีพื้นหลัง */
+          outline: none; /* ลบเส้นขอบเมื่อโฟกัส */
+          font-size: 1rem; /* ขนาดฟอนต์ */
+          color: #333; /* สีข้อความ */
+        }
+      }
+      
+  }
+  
+  .lang {
+    position: absolute;
+    top: 2rem; /* ระยะห่างจากด้านบน */
+    right: 2rem; /* ระยะห่างจากด้านขวา */
+    font-size: 1rem; /* ขนาดฟอนต์ */
+    font-weight: bold; /* ตัวหนา */
+    color: var(--whiteColor); /* สีข้อความ */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็น pointer */
+  }
+  
+  .lang span {
+    padding: 0.5rem; /* เพิ่มพื้นที่รอบข้อความ */
+    border: 1px solid var(--whiteColor); /* ขอบสีขาว */
+    border-radius: 5px; /* ขอบมน */
+    background-color: rgba(255, 255, 255, 0.2); /* พื้นหลังโปร่งใส */
+  }
+  
+  .lang span:hover {
+    background-color: rgba(255, 255, 255, 0.4); /* สีพื้นหลังเปลี่ยนเมื่อ hover */
+  }
+  
+  .app {
+    display: flex;
+  
+    .content {
+      flex: 1;
+      margin-left: 250px; /* ระยะห่างเมื่อ Sidebar ขยาย */
+      transition: margin-left 0.3s ease-in-out;
+  
+      &.sidebar-collapsed {
+        margin-left: 80px; /* ระยะห่างเมื่อ Sidebar ยุบ */
+      }
+    }
+  }
+  
+  .sidebar {
+    width: 250px;
+    transition: width 0.3s ease-in-out;
+  
+    &.collapsed {
+      width: 80px;
+    }
+  }
+  

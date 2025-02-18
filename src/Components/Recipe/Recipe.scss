@@ -1,0 +1,138 @@
+.recipe-container {
+  display: flex;
+  flex-direction: row;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.sidebar.collapsed ~ .recipe-content {
+  margin-left: 75px;
+  margin-right: 10px;
+}
+
+.recipe-content {
+  margin-top: 3rem;
+  flex: 1;
+  padding: 20px;
+  margin-right: 10px;
+  margin-left: 250px;
+  display: flex; // ใช้ Flexbox เพื่อจัดกล่องภายใน
+  gap: 20px; // ระยะห่างระหว่าง recipeList และ recipeDetail
+  transition: margin-left 0.3s ease-in-out;
+
+  .recipeList {
+    flex: 2; // ขยายพื้นที่ของ recipeList
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+
+    h4 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+
+        .viewRecipeBtn {
+          max-width: fit-content;
+          padding: 5px 10px;
+          border: none;
+          background-color: #4e8df5;
+          color: white;
+          border-radius: 5px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #357ae8;
+          }
+        }
+      }
+    }
+
+    .pagination {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .paginationControls {
+        display: flex;
+        gap: 5px;
+
+        button {
+          padding: 5px 10px;
+          border: 1px solid #ddd;
+          background: white;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #f4f4f4;
+          }
+        }
+      }
+    }
+  }
+
+  .recipeDetail {
+    flex: 1; // ใช้พื้นที่น้อยกว่า recipeList
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    h5 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f4f4f4;
+        text-align: left;
+      }
+
+      td {
+        text-align: left;
+      }
+    }
+  }
+}
+.deleteRecipeBtn {
+  background-color: rgb(185, 54, 54);
+  color: white; // ✅ ทำให้ตัวหนังสืออ่านง่าย
+  border: none;
+  padding: 10px 15px; // ✅ ปรับขนาดปุ่ม
+  border-radius: 5px; // ✅ เพิ่มมุมโค้งมน
+  cursor: pointer;
+  transition: background-color 0.3s ease; // ✅ ทำให้เอฟเฟกต์เปลี่ยนสีลื่นขึ้น
+
+  &:hover {
+    background-color: rgb(194, 81, 81);
+  }
+}

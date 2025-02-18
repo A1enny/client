@@ -1,0 +1,157 @@
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f5f7fa;
+  font-family: 'Roboto', sans-serif;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+  background-color: var(--whiteColor);
+  margin-left: 250px; /* Default margin when sidebar is expanded */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* 🎯 ส่วนหัว */
+.dashboardHeader {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.dashboardHeader h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.dashboardHeader p {
+  font-size: 16px;
+  color: #888;
+}
+
+/* 🎯 บัตรข้อมูลสรุป */
+.infoCards {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.infoCards .card {
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(23% - 10px);
+  text-align: center;
+  margin: 5px;
+  color: white;
+  font-weight: bold;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.infoCards .card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 🎨 สีพื้นหลังสำหรับแต่ละการ์ด */
+.infoCards .card:nth-child(1) { background: linear-gradient(to right, #45bee9, #51a7e6); }
+.infoCards .card:nth-child(2) { background: linear-gradient(to right, #6a11cb, #2575fc); }
+.infoCards .card:nth-child(3) { background: linear-gradient(to right, #ff758c, #ff7eb3); }
+.infoCards .card:nth-child(4) { background: linear-gradient(to right, #f79d00, #ff9f1a); }
+
+/* 🎯 โซนกราฟ */
+.charts {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.chartContainer {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(48% - 10px);
+  margin: 5px;
+}
+
+.chartContainer h4 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 🎯 ตารางข้อมูล */
+.dataTables {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.tableContainer {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(48% - 10px);
+  margin: 5px;
+}
+
+.tableContainer h4 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.tableContainer table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableContainer th,
+.tableContainer td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tableContainer tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* 🛠 ปรับสำหรับหน้าจอเล็ก (Responsive) */
+@media screen and (max-width: 768px) {
+  .dashboard-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  .infoCards {
+    flex-direction: column;
+  }
+
+  .infoCards .card {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .charts {
+    flex-direction: column;
+  }
+
+  .chartContainer {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .dataTables {
+    flex-direction: column;
+  }
+
+  .tableContainer {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}

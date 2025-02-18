@@ -1,0 +1,228 @@
+$primaryColor: #007bff; // สีน้ำเงินหลัก
+$hoverColor: #0056b3; // สีโฮเวอร์ของปุ่มหลัก
+$successColor: #28a745; // สีปุ่มสำเร็จ (เช่น ใช้งานได้)
+$errorColor: #dc3545; // สีปุ่มลบ (เช่น ลบโต๊ะ)
+$bgColor: #f8f9fa; // สีพื้นหลัง
+$cardColor: #ffffff; // สีของการ์ดตาราง
+$buttonRadius: 6px; // มุมโค้งของปุ่ม
+$tablePadding: 14px; // ระยะห่างภายในตาราง
+$shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
+
+.Table-container {
+  margin-top: 3.8rem;
+  display: flex;
+  flex-direction: row;
+  background-color: $bgColor;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.sidebar.collapsed ~ .Table-content {
+  margin-left: 75px;
+  margin-right: 10px;
+}
+
+.Table-content {
+  flex: 1;
+  padding: 20px;
+  margin-right: 10px;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: $shadow;
+
+  h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+}
+
+/* 🔹 ส่วนค้นหาและกรอง */
+.Table-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: $cardColor;
+  box-shadow: $shadow;
+
+  .filter-dropdown,
+  .search-input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: $buttonRadius;
+    font-size: 14px;
+    background-color: #fff;
+    transition: all 0.2s ease-in-out;
+
+    &:focus {
+      border-color: $primaryColor;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    }
+  }
+
+  .search-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: $buttonRadius;
+    cursor: pointer;
+    background-color: $primaryColor;
+    color: #fff;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: $hoverColor;
+    }
+  }
+}
+
+/* 🔹 ตารางแสดงข้อมูล */
+.Table-data {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: $cardColor;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: $shadow;
+  margin-top: 20px;
+
+  thead {
+    background-color: $primaryColor;
+    color: #fff;
+
+    th {
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #ddd;
+      transition: background 0.2s;
+
+      &:hover {
+        background-color: #f1f1f1;
+      }
+
+      td {
+        padding: $tablePadding;
+        font-size: 14px;
+        text-align: center;
+
+        .button-group {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        }
+
+        /* 🔹 ปุ่มใช้งาน */
+        .start-btn {
+          background-color: $successColor;
+          color: #fff;
+          padding: 8px 12px;
+          border-radius: $buttonRadius;
+          cursor: pointer;
+          transition: background 0.2s;
+
+          &:hover {
+            background-color: darken($successColor, 10%);
+          }
+        }
+
+        /* 🔹 ปุ่มจัดการ (แก้ไข / ลบ) */
+        .details-button,
+        .delete-button {
+          padding: 8px 12px;
+          font-size: 14px;
+          border-radius: $buttonRadius;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+
+        .details-button {
+          background-color: $primaryColor;
+          color: #fff;
+
+          &:hover {
+            background-color: $hoverColor;
+          }
+        }
+
+        .delete-button {
+          background-color: $errorColor;
+          color: #fff;
+
+          &:hover {
+            background-color: darken($errorColor, 10%);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* 🔹 ปุ่มเพิ่มโต๊ะ */
+.add-table-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+
+  .add-table-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: $primaryColor;
+    color: #fff;
+    border: none;
+    border-radius: $buttonRadius;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background-color: $hoverColor;
+    }
+  }
+}
+
+/* 🔹 ทำให้ Responsive */
+@media (max-width: 768px) {
+  .Table-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .Table-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .Table-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .Table-data {
+    font-size: 12px;
+
+    thead {
+      th {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+
+    tbody {
+      td {
+        padding: 10px;
+      }
+    }
+  }
+}

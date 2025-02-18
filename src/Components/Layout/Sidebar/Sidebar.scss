@@ -1,0 +1,163 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  background: linear-gradient(to bottom, #4e8df5, #65b0f7);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease-in-out;
+  z-index: 1000; /* ให้ Sidebar อยู่เหนือองค์ประกอบอื่น */
+
+  /* เมื่อ Sidebar ยุบ */
+  &.collapsed {
+    width: 80px;
+
+    .menu-item span {
+      display: none; /* ซ่อนข้อความเมนู */
+    }
+  }
+
+  .toggle-button {
+    position: absolute;
+    top: 20px;
+    right: -15px;
+    background: #fff;
+    color: #4e8df5;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1100;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .sidebar-header {
+      text-align: center;
+      padding: 20px 0;
+    
+      .logo {
+        width: 125px; /* ขนาดโลโก้เริ่มต้น */
+        height: auto; /* รักษาอัตราส่วน */
+        margin-top: 3rem;
+        border-radius: 50%; /* ทำให้โลโก้เป็นวงกลม */
+        transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    
+        /* เมื่อ Sidebar ยุบ */
+        &.collapsed {
+          width: 70px; /* ลดขนาดโลโก้ */
+        }
+      }
+    }
+    
+    .sidebar.collapsed {
+      .logo {
+        width: 70px; /* กำหนดขนาดโลโก้เมื่อ Sidebar ยุบ */
+      }
+    }
+
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      margin-top: 15px;
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        color: #fff;
+        text-decoration: none;
+        transition: background 0.3s ease, color 0.3s ease;
+        border-radius: 8px;
+        gap: 10px;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        svg {
+          font-size: 20px; /* ขนาด Icon */
+          min-width: 20px;
+        }
+
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          transition: opacity 0.3s ease-in-out;
+        }
+      }
+    }
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 20px;
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.3s ease, color 0.3s ease;
+      border-radius: 8px;
+      gap: 10px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      svg {
+        font-size: 20px;
+        min-width: 20px;
+      }
+    }
+  }
+}
+
+/* จัดระยะห่างของเนื้อหาเมื่อ Sidebar ค้างอยู่ */
+.dashboard-content {
+  margin-left: 250px; /* ระยะห่างเมื่อ Sidebar ขยาย */
+  transition: margin-left 0.3s ease-in-out;
+
+  .sidebar.collapsed ~ & {
+    margin-left: 80px; /* ระยะห่างเมื่อ Sidebar ยุบ */
+  }
+}
+
+/* Media Query สำหรับหน้าจอเล็ก */
+@media screen and (max-width: 768px) {
+  .sidebar {
+    width: 80px; /* Sidebar ย่อสำหรับหน้าจอเล็ก */
+    .collapsed {
+      width: 60px; /* ลดขนาดลงอีก */
+    }
+  }
+
+  .dashboard-content {
+    margin-left: 80px; /* ระยะห่างเมื่อ Sidebar ย่อ */
+  }
+
+  .sidebar-header {
+    .logo {
+      max-width: 50px; /* ลดขนาดโลโก้สำหรับหน้าจอเล็ก */
+      max-height: 50px;
+    }
+  }
+}

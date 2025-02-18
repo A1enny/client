@@ -1,0 +1,205 @@
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 60px;
+$product-primary-color: #4caf50;
+$product-secondary-color: #2196f3;
+$product-danger-color: #f44336;
+
+.product-container {
+  top: 3.9rem;
+  position: relative;
+}
+
+.sidebar.collapsed ~ .product-content,.modal-content {
+  margin-left: 75px;
+  margin-right: 10px;
+}
+
+.product-content {
+  height: 100vh;
+  margin-right: 10px;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
+  padding: 20px;
+  background-color: #f9f9f9;
+  
+  .productheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        &.create {
+          background-color: var(--primaryColor);
+          color: white;
+        }
+
+        &.export {
+          background-color: #ebb654;
+          color: white;
+        }
+      }
+    }
+  }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    .search-bar {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      max-width: 150px;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+
+      &.search {
+        background-color: var(--primaryColor);
+        color: white;
+      }
+
+      &.clear {
+        background-color: $product-danger-color;
+        color: white;
+      }
+    }
+  }
+
+  .product-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      max-width: 120px;
+      padding: 5px 15px;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+
+      &.edit {
+        background-color: $product-secondary-color;
+        color: white;
+      }
+
+      &.delete {
+        background-color: $product-danger-color;
+        color: white;
+      }
+    }
+  }
+
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 50%; // กำหนดให้ Modal กว้าง 50% ของหน้าจอ
+  max-width: 600px; // จำกัดความกว้างสูงสุดของ Modal
+  min-width: 400px; // กำหนดขนาดเล็กสุดให้รองรับทุกขนาดจอ
+  transition: margin-left 0.3s ease-in-out;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ปรับ modal-content ให้เล็กลงเมื่อลด Sidebar */
+.sidebar.collapsed ~ .modal-content {
+  width: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ปรับ input และปุ่มใน Modal */
+.modal-input{
+  margin-bottom: 10px;
+}
+.modal-select{
+  margin-bottom: 20px;
+  justify-content: space-around;
+}
+/* ปุ่มใน Modal */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .save {
+    background-color: var(--primaryColor);
+    color: white;
+  }
+
+  .cancel {
+    background-color: #bbb;
+    color: white;
+  }
+}
