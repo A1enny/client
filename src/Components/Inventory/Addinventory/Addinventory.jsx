@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
-import "./AddInventory.scss";
+import "./Addinventory.scss";
 
 const AddInventory = () => {
   const [ingredientName, setIngredientName] = useState("");
