@@ -1,12 +1,21 @@
 import { io } from "socket.io-client";
 
-const socket = io("wss://119.59.101.86:8000/Api_backend_maw/api/v1/", {
-  transports: ["websocket"], // ✅ บังคับใช้ WebSocket
-  secure: true, // ✅ บังคับใช้ SSL
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL; // ✅ ใช้ค่าจาก .env
+
+const socket = io(SOCKET_URL, {
+    transports: ["websocket"], // ✅ บังคับใช้ WebSocket
+    secure: false, // ✅ ใช้งาน WebSocket ผ่าน HTTPS
+    reconnection: true, 
+    reconnectionAttempts: 5, 
+    reconnectionDelay: 3000, 
 });
 
 socket.on("connect", () => {
-  console.log("🔌 Connected to Socket.io Server");
+    console.log("✅ Connected to WebSocket:", socket.id);
+});
+
+socket.on("connect_error", (err) => {
+    console.error("❌ WebSocket connection error:", err);
 });
 
 export default socket;

@@ -2,7 +2,8 @@ import "./Navbar.scss";
 import { MdNotifications, MdArrowDropDown } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../Api/axios";
+import axios from "../../../Api/axios";
+
 
 const Navbar = () => {
   const navigate = useNavigate();

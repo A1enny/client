@@ -1,7 +1,10 @@
 import axios from "axios";
 
-const instance = axios.create({
-  baseURL: "http://119.59.101.86:8000/Api_backend_maw/api/v1", // ✅ ใช้ HTTPS ของ Vercel
-  headers: { "Content-Type": "application/json" },
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL, // ✅ ใช้ค่าจาก .env
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
-export default instance;
+
+export default API;

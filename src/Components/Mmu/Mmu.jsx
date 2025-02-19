@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
-import axios from "../Api/axios";
+import axios from "../../Api/axios";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
 import "./Mmu.scss";

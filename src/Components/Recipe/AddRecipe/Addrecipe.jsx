@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "../../Api/axios";
+import axios from "../../../Api/axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import Navbar from "../../Layout/Navbar/Navbar";

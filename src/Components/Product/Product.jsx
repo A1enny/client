@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./Product.scss";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
-import axios from "../Api/axios";
+import axios from "../../Api/axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import Modal from "react-modal";

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../../Api/axios";
-import socket from "../../Api/socket";
+import socket from "../../../Api/socket";
 import Swal from "sweetalert2";
 import "./Orderpage.scss";
 

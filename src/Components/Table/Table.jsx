@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../Api/axios";
+import axios from "../../Api/axios";
 import Swal from "sweetalert2";
 import { QRCodeCanvas } from "qrcode.react";
 import Sidebar from "../Layout/Sidebar/Sidebar";

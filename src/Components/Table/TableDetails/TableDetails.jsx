@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../../Api/axios/";
-import socket from "../../Api/socket";
+import axios from "../../../Api/axios";
+import socket from "../../../Api/socket";
 import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
 import "./TableDetails.scss";
