@@ -40,16 +40,19 @@ const Login = () => {
 
         console.log("✅ API ตอบกลับ:", response.data);
 
-        if (response.data.res_code === "00") {
+        // ✅ ใช้ message เช็คเงื่อนไขแทน res_code
+        if (response.data.message.includes("เข้าสู่ระบบสำเร็จ")) {
             Swal.fire({
                 icon: "success",
                 title: "✅ เข้าสู่ระบบสำเร็จ!",
-                text: response.data.res_text,
+                text: response.data.message,
                 timer: 2000,
             });
 
+            // ✅ แก้ไขการบันทึกข้อมูลลง LocalStorage
             localStorage.setItem("user_id", response.data.user.id);
             localStorage.setItem("role", response.data.user.role);
+            localStorage.setItem("username", response.data.user.username);
             sessionStorage.setItem("isLoggedIn", "true");
 
             setTimeout(() => {
@@ -74,6 +77,7 @@ const Login = () => {
         setIsLoading(false);
     }
 };
+
 
   return (
     <div className="loginPage flex">
