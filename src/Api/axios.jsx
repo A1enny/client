@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// กำหนด baseURL โดยตรง แทนการใช้ .env
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // ✅ ใช้ค่าจาก .env
+  baseURL: "http://119.59.101.35:5000/api",  // 🔥 ใช้ URL โดยตรง
   headers: {
     "Content-Type": "application/json",
   },

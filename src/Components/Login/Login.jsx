@@ -33,7 +33,7 @@ const Login = () => {
 
     try {
         setIsLoading(true);
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
+        const response = await axios.post(`http://119.59.101.35:5000/api/users/login`, {
             username: loginUserName,
             password: loginPassword,
         });
