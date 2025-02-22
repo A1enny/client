@@ -20,7 +20,7 @@ const Table = () => {
 
   const fetchTables = async () => {
     try {
-      let url = "http://localhost:3002/api/tables";
+      let url = "http://119.59.101.35:5000/tables";
       const queryParams = [];
       if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
       if (statusFilter)
@@ -41,7 +41,7 @@ const Table = () => {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      "http://localhost:3002/api/tables/updates"
+      "http://119.59.101.35:5000/tables/updates"
     );
     eventSource.onmessage = (event) => setTables(JSON.parse(event.data));
     return () => eventSource.close();
@@ -71,7 +71,7 @@ const Table = () => {
     }
   
     try {
-      await axios.post("http://localhost:3002/api/tables", {
+      await axios.post("http://119.59.101.35:5000/tables", {
         ...newTable,
         status: "available", // ✅ กำหนดค่า default
       });
@@ -143,7 +143,7 @@ const Table = () => {
                         className="start-btn"
                         onClick={() =>
                           handleAction(
-                            `http://localhost:3002/api/tables/${table.table_id}/start`,
+                            `http://119.59.101.35:5000/tables/${table.table_id}/start`,
                             "โต๊ะถูกใช้งานแล้ว"
                           )
                         }
@@ -156,7 +156,7 @@ const Table = () => {
                         className="reset-btn"
                         onClick={() =>
                           handleAction(
-                            `http://localhost:3002/api/tables/${table.table_id}/reset`,
+                            `http://119.59.101.35:5000/tables/${table.table_id}/reset`,
                             "โต๊ะกลับมาใช้งานได้แล้ว"
                           )
                         }
@@ -180,7 +180,7 @@ const Table = () => {
                       className="delete-button"
                       onClick={() =>
                         handleAction(
-                          `http://localhost:3002/api/tables/${table.table_id}/delete`,
+                          `http://119.59.101.35:5000/tables/${table.table_id}/delete`,
                           "โต๊ะถูกลบแล้ว"
                         )
                       }

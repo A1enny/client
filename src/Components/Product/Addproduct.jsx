@@ -58,12 +58,12 @@ const Addproduct = () => {
   const fetchProductData = async (productId) => {
     try {
       const { data } = await axios.get(
-        `http://localhost:3002/api/products/${productId}`
+        `http://119.59.101.35:5000/products/${productId}`
       );
       setProduct({
         ...data.product,
         image_url: data.product.image_url
-          ? `http://localhost:3002${data.product.image_url}`
+          ? `http://119.59.101.35:5000${data.product.image_url}`
           : null,
       });
       setIngredients(data.ingredients || []);
@@ -139,8 +139,8 @@ const Addproduct = () => {
 
     try {
       const endpoint = product.id
-        ? `http://localhost:3002/api/products/${product.id}`
-        : "http://localhost:3002/api/products";
+        ? `http://119.59.101.35:5000/products/${product.id}`
+        : "http://119.59.101.35:5000/products";
       const method = product.id ? "put" : "post";
 
       await axios[method](endpoint, formData, {

@@ -20,7 +20,7 @@ const StartTable = () => {
   const fetchTableDetails = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3002/api/tables/${tableId}`
+        `http://119.59.101.35:5000/tables/${tableId}`
       );
       setTable(response.data);
       setLoading(false);
@@ -36,7 +36,7 @@ const StartTable = () => {
         const sessionId = Date.now().toString(); // ✅ สร้าง session_id ใหม่
         console.log("📌 Sending session_id:", sessionId); // ✅ ตรวจสอบค่า
 
-        const response = await axios.put(`http://localhost:3002/api/tables/${tableId}`, {
+        const response = await axios.put(`http://119.59.101.35:5000/tables/${tableId}`, {
             status: "occupied",
             session_id: sessionId,
         });

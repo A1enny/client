@@ -35,7 +35,7 @@ const Addrecipe = () => {
     const fetchData = async () => {
       try {
         const ingredientsRes = await axios.get(
-          "http://localhost:3002/api/ingredients?limit=1000"
+          "http://119.59.101.35:5000/ingredients?limit=1000"
         );
         setIngredientOptions(
           ingredientsRes.data.results.map((item) => ({
@@ -61,7 +61,7 @@ const Addrecipe = () => {
     const fetchRecipe = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3002/api/recipes/${id}`
+          `http://119.59.101.35:5000/recipes/${id}`
         );
         const recipeData = response.data;
 
@@ -140,8 +140,8 @@ const Addrecipe = () => {
       formData.append("ingredients", JSON.stringify(ingredients));
 
       const url = id
-        ? `http://localhost:3002/api/recipes/${id}`
-        : "http://localhost:3002/api/recipes";
+        ? `http://119.59.101.35:5000/recipes/${id}`
+        : "http://119.59.101.35:5000/recipes";
 
       const method = id ? "put" : "post";
 

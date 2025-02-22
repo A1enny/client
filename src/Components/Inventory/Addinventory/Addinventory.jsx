@@ -16,7 +16,7 @@ const AddInventory = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/categories");
+        const res = await axios.get("http://119.59.101.35:5000/categories");
         setCategories(res.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -34,7 +34,7 @@ const AddInventory = () => {
     let quantityInGrams = parseFloat(quantity); // ✅ ไม่ต้องคูณ 1000
   
     try {
-      await axios.post("http://localhost:3002/api/ingredients", {
+      await axios.post("http://119.59.101.35:5000/ingredients", {
         ingredient_name: ingredientName,
         category_id: parseInt(categoryId),
         quantity: quantityInGrams, // ✅ ส่งค่าเป็นกรัมตรง ๆ

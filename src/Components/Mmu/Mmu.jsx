@@ -16,7 +16,7 @@ const ManageUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3002/api/users");
+      const res = await axios.get("http://119.59.101.35:5000/users");
       console.log("📌 รายชื่อผู้ใช้ที่โหลดจาก API:", res.data);
       setUsers(res.data);
     } catch (error) {
@@ -61,7 +61,7 @@ const ManageUsers = () => {
     }
 
     try {
-        const response = await axios.post("http://localhost:3002/api/users", formValues);
+        const response = await axios.post("http://119.59.101.35:5000/users", formValues);
         console.log("✅ เพิ่มผู้ใช้สำเร็จ:", response.data);
         Swal.fire("✅ เพิ่มผู้ใช้สำเร็จ!", "", "success");
     } catch (error) {
@@ -85,7 +85,7 @@ const ManageUsers = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3002/api/users/${userId}`);
+          await axios.delete(`http://119.59.101.35:5000/users/${userId}`);
           setUsers(users.filter((user) => user.id !== userId));
           Swal.fire("ลบแล้ว!", "ข้อมูลผู้ใช้ถูกลบเรียบร้อย", "success");
         } catch (error) {

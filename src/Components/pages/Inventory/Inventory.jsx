@@ -25,7 +25,7 @@ const Inventory = () => {
         });
 
         const ingredientsRes = await axios.get(
-          "http://localhost:3002/api/ingredients",
+          "http://119.59.101.35:5000/ingredients",
           {
             params: {
               searchTerm,
@@ -48,7 +48,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3002/api/categories");
+        const res = await axios.get("http://119.59.101.35:5000/categories");
         console.log("📢 Categories Data:", res.data); // ✅ ตรวจสอบข้อมูลที่ได้
         setCategories(res.data);
       } catch (error) {
@@ -74,7 +74,7 @@ const Inventory = () => {
   const handleDelete = async (id) => {
     if (window.confirm("คุณแน่ใจว่าต้องการลบวัตถุดิบนี้?")) {
       try {
-        await axios.delete(`http://localhost:3002/api/ingredients/${id}`);
+        await axios.delete(`http://119.59.101.35:5000/ingredients/${id}`);
         alert("ลบวัตถุดิบสำเร็จ!");
         setIngredients(
           ingredients.filter((ingredient) => ingredient.ingredient_id !== id)

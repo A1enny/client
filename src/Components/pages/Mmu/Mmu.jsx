@@ -74,7 +74,7 @@ const ManageUsers = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3002/api/users",
+        "http://119.59.101.35:5000/users",
         formValues
       );
       console.log("✅ เพิ่มผู้ใช้สำเร็จ:", response.data);
@@ -102,7 +102,7 @@ const ManageUsers = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3002/api/users/${userId}`);
+          await axios.delete(`http://119.59.101.35:5000/users/${userId}`);
           setUsers(users.filter((user) => user.id !== userId));
           Swal.fire("ลบแล้ว!", "ข้อมูลผู้ใช้ถูกลบเรียบร้อย", "success");
         } catch (error) {

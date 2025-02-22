@@ -15,9 +15,9 @@ const EditIngredient = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:3002/api/ingredients/${id}`);
+        const res = await axios.get(`http://119.59.101.35:5000/ingredients/${id}`);
         setIngredient(res.data);
-        const categoriesRes = await axios.get("http://localhost:3002/api/categories");
+        const categoriesRes = await axios.get("http://119.59.101.35:5000/categories");
         setCategories(categoriesRes.data);
         setLoading(false);
       } catch (error) {
@@ -34,7 +34,7 @@ const EditIngredient = () => {
     let updatedQuantity = parseFloat(ingredient.quantity); // ✅ ใช้ค่าเดิมตรง ๆ เป็นกรัม
 
     try {
-      await axios.put(`http://localhost:3002/api/ingredients/${id}`, {
+      await axios.put(`http://119.59.101.35:5000/ingredients/${id}`, {
         ingredient_name: ingredient.ingredient_name,
         category_id: ingredient.category_id,
         quantity: updatedQuantity, // ✅ ส่งค่าเป็นกรัมโดยตรง

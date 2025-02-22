@@ -53,7 +53,7 @@ const Navbar = () => {
   const fetchUserProfile = async (userId) => {
     try {
       const res = await axios.get(
-        `http://localhost:3002/api/users/profile/${userId}`
+        `http://119.59.101.35:5000/users/profile/${userId}`
       );
       setUsername(res.data.username);
       setProfileImage(res.data.profile_image);

@@ -48,7 +48,7 @@ const ProfileSettings = () => {
     if (!id) return;
     try {
       const res = await axios.get(
-        `http://localhost:3002/api/users/profile/${id}`
+        `http://119.59.101.35:5000/users/profile/${id}`
       );
       console.log("📌 ข้อมูลโปรไฟล์ที่ได้จาก API:", res.data);
 
@@ -70,7 +70,7 @@ const ProfileSettings = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3002/api/users");
+      const res = await axios.get("http://119.59.101.35:5000/users");
       console.log("📌 ดึงข้อมูล users สำเร็จ:", res.data);
       setUsers(res.data);
     } catch (error) {

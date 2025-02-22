@@ -16,10 +16,10 @@ const EditIngredient = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:3002/api/ingredients/${id}`);
+        const res = await axios.get(`http://119.59.101.35:5000/ingredients/${id}`);
         setIngredient(res.data);
         setUnit(res.data.quantity <= 1 ? "g" : "kg"); // กำหนดหน่วยเริ่มต้นตามจำนวน
-        const categoriesRes = await axios.get("http://localhost:3002/api/categories");
+        const categoriesRes = await axios.get("http://119.59.101.35:5000/categories");
         setCategories(categoriesRes.data);
         setLoading(false);
       } catch (error) {
@@ -42,7 +42,7 @@ const EditIngredient = () => {
     }
 
     try {
-      await axios.put(`http://localhost:3002/api/ingredients/${id}`, {
+      await axios.put(`http://119.59.101.35:5000/ingredients/${id}`, {
         ingredient_name: ingredient.ingredient_name,
         category_id: ingredient.category_id,
         quantity: updatedQuantity, // ส่งจำนวนที่แปลงแล้ว

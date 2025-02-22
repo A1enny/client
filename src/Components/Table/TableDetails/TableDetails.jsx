@@ -60,7 +60,7 @@ const TableDetails = () => {
   // ✅ แก้ไขโดยใช้ useCallback เพื่อป้องกันฟังก์ชันถูกสร้างใหม่บ่อยๆ
   const fetchTableDetails = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:3002/api/tables/${table_id}`);
+      const response = await axios.get(`http://119.59.101.35:5000/tables/${table_id}`);
       setTable(response.data);
     } catch (error) {
       console.error("❌ ดึงข้อมูลโต๊ะผิดพลาด:", error);
@@ -74,7 +74,7 @@ const TableDetails = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`http://localhost:3002/api/orders?table_id=${table_id}`);
+        const response = await axios.get(`http://119.59.101.35:5000/orders?table_id=${table_id}`);
         if (Array.isArray(response.data)) {
           setOrders(response.data);
         } else {
@@ -100,7 +100,7 @@ const TableDetails = () => {
 
   const fetchInventory = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/api/inventory");
+      const response = await axios.get("http://119.59.101.35:5000/inventory");
       console.log("🎯 คลังวัตถุดิบล่าสุด:", response.data);
     } catch (error) {
       console.error("❌ ดึงข้อมูลคลังวัตถุดิบผิดพลาด:", error);
@@ -110,7 +110,7 @@ const TableDetails = () => {
   // ✅ ฟังก์ชันนี้สามารถเรียก fetchTableDetails() ได้แล้ว
   const handlePaymentConfirm = async () => {
     try {
-      await axios.put("http://localhost:3002/api/orders/confirm-payment", {
+      await axios.put("http://119.59.101.35:5000/orders/confirm-payment", {
         table_id,
       });
 

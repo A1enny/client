@@ -21,7 +21,7 @@ const Inventory = () => {
     setLoading(true);
     try {
       const { data: ingredientsRes } = await axios.get(
-        "http://localhost:3002/api/ingredients",
+        "http://119.59.101.35:5000/ingredients",
         {
           params: {
             page: currentPage,
@@ -33,7 +33,7 @@ const Inventory = () => {
       );
 
       const { data: categoriesRes } = await axios.get(
-        "http://localhost:3002/api/categories"
+        "http://119.59.101.35:5000/categories"
       );
 
       setIngredients(ingredientsRes.results || []);
@@ -67,7 +67,7 @@ const Inventory = () => {
   const handleDelete = async (id) => {
     if (window.confirm("คุณแน่ใจว่าต้องการลบวัตถุดิบนี้?")) {
       try {
-        await axios.delete(`http://localhost:3002/api/ingredients/${id}`);
+        await axios.delete(`http://119.59.101.35:5000/ingredients/${id}`);
         alert("✅ ลบวัตถุดิบสำเร็จ!");
         fetchData(); // โหลดข้อมูลใหม่
       } catch (error) {

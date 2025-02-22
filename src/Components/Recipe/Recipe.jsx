@@ -16,7 +16,7 @@ const Recipe = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get("http://localhost:3002/api/recipes");
+        const response = await axios.get("http://119.59.101.35:5000/recipes");
         console.log("📢 API Response:", response.data);
     
         const fetchedRecipes = response.data.results || response.data;
@@ -77,7 +77,7 @@ const Recipe = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3002/api/recipes/${id}`);
+          await axios.delete(`http://119.59.101.35:5000/recipes/${id}`);
           setRecipes(recipes.filter((recipe) => recipe.id !== id)); // ✅ อัปเดตรายการ
           setSelectedRecipe(null); // ✅ ปิดรายละเอียด
           Swal.fire("ลบสำเร็จ!", "สูตรอาหารถูกลบออกจากระบบแล้ว", "success");
