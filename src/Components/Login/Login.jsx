@@ -8,6 +8,8 @@ import { FaUserShield, FaKey } from "react-icons/fa";
 import { AiOutlineSwapRight } from "react-icons/ai";
 import Swal from "sweetalert2";
 
+const API_URL = "http://119.59.101.35:5000/api"; 
+
 const Login = () => {
   const [loginUserName, setLoginUserName] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -33,7 +35,7 @@ const Login = () => {
 
     try {
         setIsLoading(true);
-        const response = await axios.post(`http://119.59.101.35:5000/api/users/login`, {
+        const response = await axios.post(`${API_URL}/users/login`, {
             username: loginUserName,
             password: loginPassword,
         });

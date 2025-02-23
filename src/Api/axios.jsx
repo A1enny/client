@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://119.59.101.35:5000/api";
+const API_URL = import.meta.env.VITE_API_URL; // ✅ ดึงค่าจาก .env
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
