@@ -6,14 +6,21 @@ export default defineConfig({
   plugins: [react()],
 
   server: {
-    host: '0.0.0.0', // เปิดให้ทุกอุปกรณ์ในเครือข่ายเข้าถึงได้
+    host: '0.0.0.0',
     port: 5173,
-    proxy:{
-      "/api":{
-        target: "http://localhost:3002",
+    proxy: {
+      "/api": {
+        target: "http://119.59.101.35:5000",
         changeOrigin: true,
         secure: false,
       }
     }
-  }
+  },
+
+  build: {
+    outDir: "dist", // Netlify จะใช้โฟลเดอร์นี้ในการ Deploy
+    assetsDir: "assets",
+  },
+
+  base: "./", // ป้องกันปัญหาไฟล์ถูกเรียกผิดพาธ
 });
