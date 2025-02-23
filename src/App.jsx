@@ -5,7 +5,6 @@ import Login from "./Components/Login/Login";
 import Tables from "./Components/Table/Table";
 import Recipe from "./Components/Recipe/Recipe";
 import Product from "./Components/Product/Product";
-import AddProduct from "./Components/Addproduct/Addproduct";
 import Inventory from "./Components/Inventory/Inventory";
 import ProfileSettings from "./Components/ProfileSettings/ProfileSettings";
 import Report from "./Components/Report/Report";

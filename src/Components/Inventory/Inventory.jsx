@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../../Api/axios"; // ใช้ axiosInstance ที่กำหนดค่าไว้
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
@@ -13,74 +13,95 @@ const Inventory = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ เพิ่ม loading state
+  const [error, setError] = useState(null); // ✅ เพิ่ม error state
   const navigate = useNavigate();
 
-  // ✅ ดึงข้อมูลจาก API (ใช้ useCallback เพื่อเพิ่มประสิทธิภาพ)
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: ingredientsRes } = await axios.get(
-        "http://119.59.101.35:5000/ingredients",
-        {
+  // 📌 ดึงข้อมูลวัตถุดิบ (Pagination + Filtering)
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log("📢 Fetching ingredients with filters:", {
+          searchTerm,
+          category: selectedCategory,
+          page: currentPage,
+        });
+
+        const response = await axios.get(`/ingredients`, {
           params: {
+            search: searchTerm || undefined,
+            category: selectedCategory || undefined,
             page: currentPage,
             limit: 10,
-            searchTerm: searchTerm || "",
-            category: selectedCategory || "",
           },
+        });
+
+        if (response.data && Array.isArray(response.data.results)) {
+          setIngredients(response.data.results);
+          setTotalPages(response.data.totalPages || 1);
+        } else {
+          setIngredients([]);
+          setTotalPages(1);
         }
-      );
 
-      const { data: categoriesRes } = await axios.get(
-        "http://119.59.101.35:5000/categories"
-      );
+        console.log("✅ Fetched ingredients:", response.data);
+      } catch (error) {
+        setError(error.response?.data?.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
+        console.error("❌ Error fetching ingredients:", error.response?.data || error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setIngredients(ingredientsRes.results || []);
-      setCategories(categoriesRes || []);
-      setTotalPages(ingredientsRes.totalPages || 1);
-    } catch (error) {
-      console.error("❌ Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage, searchTerm, selectedCategory]);
-
-  // ✅ โหลดข้อมูลใหม่เมื่อ state เปลี่ยน
-  useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [searchTerm, selectedCategory, currentPage]);
 
-  // ✅ รีเซ็ตหน้าเป็น 1 เมื่อเปลี่ยนตัวกรอง
+  // 📌 ดึงข้อมูลหมวดหมู่
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory]);
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`/categories`);
+        setCategories(res.data || []);
+      } catch (error) {
+        console.error("❌ Error fetching categories:", error.response?.data || error.message);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  // ✅ จัดการเปลี่ยนหน้า
+  // 📌 เปลี่ยนหน้าของ Pagination
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
 
-  // ✅ ฟังก์ชันลบวัตถุดิบ
+  // 📌 รีเซ็ต Pagination เมื่อเปลี่ยนการค้นหา
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
+
+  // 📌 ลบวัตถุดิบ
   const handleDelete = async (id) => {
     if (window.confirm("คุณแน่ใจว่าต้องการลบวัตถุดิบนี้?")) {
       try {
-        await axios.delete(`http://119.59.101.35:5000/ingredients/${id}`);
-        alert("✅ ลบวัตถุดิบสำเร็จ!");
-        fetchData(); // โหลดข้อมูลใหม่
+        await axios.delete(`/ingredients/${id}`);
+        setIngredients((prev) => prev.filter((ingredient) => ingredient.ingredient_id !== id));
+        alert("ลบวัตถุดิบสำเร็จ!");
       } catch (error) {
-        console.error("❌ Error deleting ingredient:", error);
+        console.error("❌ Error deleting ingredient:", error.response?.data || error.message);
         alert("เกิดข้อผิดพลาดในการลบวัตถุดิบ");
       }
     }
   };
 
-  // ✅ ฟังก์ชันแก้ไขวัตถุดิบ
+  // 📌 แก้ไขวัตถุดิบ
   const handleEdit = (ingredient) => {
     navigate(`/edit-ingredient/${ingredient.ingredient_id}`);
   };
+
 
   return (
     <div className="Inventory-container">

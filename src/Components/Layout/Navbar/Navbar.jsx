@@ -16,16 +16,17 @@ const Navbar = () => {
     const storedUserId = localStorage.getItem("user_id");
     const storedUsername = localStorage.getItem("username");
     const storedProfileImage = localStorage.getItem("profileImage");
-    const storedRole = localStorage.getItem("role"); 
-
+    const storedRole = localStorage.getItem("role");
+  
     if (storedUsername) setUsername(storedUsername);
     if (storedProfileImage) setProfileImage(storedProfileImage);
-    if (storedRole) setRole(storedRole); 
-
-    if (storedUserId) {
+    if (storedRole) setRole(storedRole);
+  
+    // ตรวจสอบว่า userId มีค่าหรือไม่ ก่อนเรียก API
+    if (storedUserId && storedUserId !== "undefined" && storedUserId !== "null") {
       fetchUserProfile(storedUserId);
     }
-  }, []);
+  }, []);  
 
   // ✅ ใช้ useEffect ติดตามการเปลี่ยนแปลงของ profileImage และ LocalStorage
   useEffect(() => {
@@ -51,6 +52,11 @@ const Navbar = () => {
   }, [profileImage]);
 
   const fetchUserProfile = async (userId) => {
+    if (!userId || userId === "undefined" || userId === "null") {
+      console.warn("🚨 userId ไม่ถูกต้อง: ", userId);
+      return;
+    }
+  
     try {
       const res = await axios.get(
         `http://119.59.101.35:5000/users/profile/${userId}`
@@ -58,7 +64,7 @@ const Navbar = () => {
       setUsername(res.data.username);
       setProfileImage(res.data.profile_image);
       setRole(res.data.role);
-
+  
       // 📌 อัปเดต Local Storage ทันที
       localStorage.setItem("username", res.data.username);
       localStorage.setItem("profileImage", res.data.profile_image);
@@ -66,7 +72,7 @@ const Navbar = () => {
     } catch (error) {
       console.error("❌ โหลดข้อมูลผู้ใช้ไม่สำเร็จ:", error);
     }
-  };
+  };  
 
   const handleLogout = () => {
     localStorage.clear();
@@ -79,7 +85,7 @@ const Navbar = () => {
   // ✅ ตรวจสอบ URL ของรูปโปรไฟล์ก่อนแสดง
   const formattedProfileImage = profileImage?.startsWith("http")
     ? profileImage
-    : `http://localhost:3002${profileImage}`;
+    : `http://119.59.101.35:5000${profileImage}`;
 
   return (
     <div className="navbar-container">

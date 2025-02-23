@@ -6,28 +6,28 @@ import "./Recipe.scss";
 import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
 
-const API_URL = "http://192.168.1.44:3002";
+const API_URL = "http://119.59.101.35:5000/api";
 
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // 📌 ดึงข้อมูลเมนูอาหารจาก backend
+  // 📌 ดึงข้อมูลสูตรอาหารจาก backend
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get("http://192.168.1.44:3002/api/recipes");
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/recipes`);
         console.log("📢 API Response:", response.data);
 
-        // ตรวจสอบโครงสร้างข้อมูล
         if (Array.isArray(response.data)) {
-          // ✅ แปลงข้อมูลให้ใช้ key ที่ถูกต้อง
           const formattedRecipes = response.data.map(recipe => ({
             recipe_id: recipe.recipe_id,
             recipe_name: recipe.recipe_name,
-            image: recipe.image?.replace("http://localhost:3002", "http://192.168.1.44:3002")
+            image: recipe.image?.replace("http://localhost:3002", `${API_URL}`)
           }));
           setRecipes(formattedRecipes);
         } else {
@@ -37,6 +37,8 @@ const Recipe = () => {
       } catch (error) {
         console.error("❌ Error fetching recipes:", error);
         setRecipes([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -46,11 +48,11 @@ const Recipe = () => {
   // 📌 ไปหน้าแก้ไขสูตรอาหาร
   const handleEditRecipe = (id) => {
     if (!id) {
-        console.error("❌ Recipe ID is undefined");
-        return;
+      console.error("❌ Recipe ID is undefined");
+      return;
     }
     navigate(`/addrecipe/${id}`);
-};
+  };
 
   // 📌 ค้นหาสูตรอาหาร
   const handleSearch = (e) => {
@@ -60,7 +62,7 @@ const Recipe = () => {
   // 📌 คัดกรองสูตรอาหารตามคำค้นหา
   const filteredRecipes = recipes.filter(
     (recipe) =>
-      recipe.recipe_name && // ✅ ตรวจสอบว่า `recipe.recipe_name` มีค่าก่อนใช้ `.toLowerCase()`
+      recipe.recipe_name &&
       recipe.recipe_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -78,8 +80,8 @@ const Recipe = () => {
   // ✅ ฟังก์ชันลบสูตรอาหาร
   const handleDeleteRecipe = async (id) => {
     if (!id) {
-        console.error("❌ Cannot delete recipe, ID is undefined!");
-        return;
+      console.error("❌ Cannot delete recipe, ID is undefined!");
+      return;
     }
 
     Swal.fire({
@@ -93,7 +95,7 @@ const Recipe = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(`${API_URL}/api/${id}`);
+          const response = await axios.delete(`${API_URL}/recipes/${id}`);
           console.log("✅ Recipe deleted:", response.data);
           setRecipes(recipes.filter((recipe) => recipe.recipe_id !== id));
           Swal.fire("ลบสำเร็จ!", "สูตรอาหารถูกลบออกจากระบบแล้ว", "success");
@@ -103,7 +105,7 @@ const Recipe = () => {
         }
       }
     });
-};
+  };
 
   return (
     <div className="recipe-container">
@@ -123,35 +125,36 @@ const Recipe = () => {
               + เพิ่มสูตรอาหาร
             </button>
           </div>
-          <ul>
-            {Array.isArray(filteredRecipes) && filteredRecipes.length > 0 ? (
-              filteredRecipes.map((recipe) => (
-                <li key={recipe.recipe_id}>
-                  {recipe.recipe_name}
-                  <button
-                    className="viewRecipeBtn"
-                    onClick={() => handleViewRecipe(recipe)}
-                  >
-                    ดูสูตรอาหาร
-                  </button>
-                </li>
-              ))
-            ) : (
-              <li>ไม่มีสูตรอาหาร</li>
-            )}
-          </ul>
+
+          {loading ? (
+            <p>กำลังโหลดข้อมูล...</p>
+          ) : (
+            <ul>
+              {filteredRecipes.length > 0 ? (
+                filteredRecipes.map((recipe) => (
+                  <li key={recipe.recipe_id}>
+                    {recipe.recipe_name}
+                    <button className="viewRecipeBtn" onClick={() => handleViewRecipe(recipe)}>
+                      ดูสูตรอาหาร
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li>ไม่มีสูตรอาหาร</li>
+              )}
+            </ul>
+          )}
         </div>
 
         {/* 📌 แสดงรายละเอียดสูตรอาหาร */}
         {selectedRecipe && (
           <div className="recipeDetail">
-            <h2>{selectedRecipe.name}</h2>
-
+            <h2>{selectedRecipe.recipe_name}</h2>
             {/* ✅ แสดงภาพ พร้อม fallback */}
             {selectedRecipe.image ? (
               <img
                 src={selectedRecipe.image}
-                alt={selectedRecipe.name}
+                alt={selectedRecipe.recipe_name}
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/images/default.jpg";
@@ -173,8 +176,7 @@ const Recipe = () => {
                 </tr>
               </thead>
               <tbody>
-                {selectedRecipe.ingredients &&
-                selectedRecipe.ingredients.length > 0 ? (
+                {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 ? (
                   selectedRecipe.ingredients.map((ingredient, index) => (
                     <tr key={index}>
                       <td>{ingredient.name}</td>
@@ -192,17 +194,16 @@ const Recipe = () => {
             </table>
 
             {/* ✅ ปุ่มลบและแก้ไขสูตรอาหาร */}
-            <button
-              className="EditRecipeBtn"
-              onClick={() => handleEditRecipe(selectedRecipe.id)}
-            >
+            <button className="EditRecipeBtn" onClick={() => handleEditRecipe(selectedRecipe.recipe_id)}>
               แก้ไขสูตรอาหาร
             </button>
-            <button
-              className="deleteRecipeBtn"
-              onClick={() => handleDeleteRecipe(selectedRecipe.id)}
-            >
+            <button className="deleteRecipeBtn" onClick={() => handleDeleteRecipe(selectedRecipe.recipe_id)}>
               ❌ ลบสูตรอาหาร
+            </button>
+
+            {/* ✅ ปุ่มปิดหน้าต่างรายละเอียด */}
+            <button className="closeRecipeBtn" onClick={() => setSelectedRecipe(null)}>
+              ❌ ปิด
             </button>
           </div>
         )}

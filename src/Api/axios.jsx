@@ -1,11 +1,12 @@
 import axios from "axios";
 
-// กำหนด baseURL โดยตรง แทนการใช้ .env
-const API = axios.create({
-  baseURL: "http://119.59.101.35:5000/api",  // 🔥 ใช้ URL โดยตรง
+const API_URL = "http://119.59.101.35:5000/api";
+
+const axiosInstance = axios.create({
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export default API;
+export default axiosInstance;
