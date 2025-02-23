@@ -4,7 +4,7 @@ import axios from "../../../Api/axios"; // ✅ ใช้ axiosInstance ที่
 import Swal from "sweetalert2"; // ✅ เพิ่ม SweetAlert2
 import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
-import "./AddInventory.scss";
+import "./Addinventory.scss";
 
 const AddInventory = () => {
   const [ingredientName, setIngredientName] = useState("");
