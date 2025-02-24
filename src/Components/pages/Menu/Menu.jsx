@@ -30,7 +30,7 @@ const Product = () => {
   const fetchMenus = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://119.59.101.35:5000/menus");
+      const response = await axios.get("http://119.59.101.35:5000/api/menus");
       console.log("📡 API Response:", response.data);
       setMenus(response.data);
     } catch (error) {
@@ -43,7 +43,7 @@ const Product = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(
-        "http://119.59.101.35:5000/menus/category"
+        "http://119.59.101.35:5000/api/menus/category"
       );
       console.log("📡 API Response (Categories):", response.data);
       setCategoryOptions(
@@ -64,7 +64,7 @@ const Product = () => {
 
   const fetchRecipes = async () => {
     try {
-      const response = await axios.get("http://119.59.101.35:5000/recipes");
+      const response = await axios.get("http://119.59.101.35:5000/api/recipes");
       setRecipes(response.data.results);
     } catch (error) {
       console.error("Error fetching recipes:", error);
@@ -85,7 +85,7 @@ const Product = () => {
     }
 
     try {
-      await axios.post("http://119.59.101.35:5000/menus", menuData);
+      await axios.post("http://119.59.101.35:5000/api/menus", menuData);
       setModalIsOpen(false);
       fetchMenus();
       Swal.fire("สำเร็จ", "เพิ่มเมนูเรียบร้อย", "success");
@@ -107,7 +107,7 @@ const Product = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://119.59.101.35:5000/menus/${menu_id}`);
+          await axios.delete(`http://119.59.101.35:5000/api/menus/${menu_id}`);
           fetchMenus();
           Swal.fire("ลบสำเร็จ!", "เมนูถูกลบออกจากระบบแล้ว", "success");
         } catch (error) {
@@ -129,7 +129,7 @@ const Product = () => {
 
   const handleEditMenu = async () => {
     try {
-      await axios.put(`http://119.59.101.35:5000/menus/${editData.menu_id}`, {
+      await axios.put(`http://119.59.101.35:5000/api/menus/${editData.menu_id}`, {
         recipe_id: editData.recipe_id,
         price: editData.price,
       });

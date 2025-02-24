@@ -7,6 +7,8 @@ import Sidebar from "../Layout/Sidebar/Sidebar";
 import Navbar from "../Layout/Navbar/Navbar";
 import "./Table.scss";
 
+const API_URL = import.meta.env.VITE_API_URL; // ✅ ใช้ค่าจาก .env
+
 const Table = () => {
   const [tables, setTables] = useState([]);
   const [search, setSearch] = useState("");
@@ -20,7 +22,7 @@ const Table = () => {
 
   const fetchTables = async () => {
     try {
-      let url = "http://119.59.101.35:5000/tables";
+      let url = `${API_URL}/api/tables`; // ✅ ใช้ API_URL แทนฮาร์ดโค้ด
       const queryParams = [];
       if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
       if (statusFilter)
@@ -33,16 +35,13 @@ const Table = () => {
       console.error("❌ ดึงข้อมูลโต๊ะผิดพลาด:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchTables();
   }, [search, statusFilter]);
 
   useEffect(() => {
-    const eventSource = new EventSource(
-      "http://119.59.101.35:5000/tables/updates"
-    );
+    const eventSource = new EventSource(`${API_URL}/api/tables/updates`);
     eventSource.onmessage = (event) => setTables(JSON.parse(event.data));
     return () => eventSource.close();
   }, []);
@@ -69,13 +68,13 @@ const Table = () => {
       Swal.fire("❌ กรุณากรอกข้อมูลให้ครบ", "", "error");
       return;
     }
-  
+
     try {
-      await axios.post("http://119.59.101.35:5000/tables", {
+      await axios.post(`${API_URL}/api/tables`, {
         ...newTable,
         status: "available", // ✅ กำหนดค่า default
       });
-  
+
       Swal.fire("✅ เพิ่มโต๊ะสำเร็จ!", "", "success");
       setIsModalOpen(false);
       fetchTables();
@@ -129,10 +128,14 @@ const Table = () => {
               <tr key={table.table_id}>
                 <td>{table.table_number}</td>
                 <td>{table.seats}</td>
-                <td><span className={`status ${table.status}`}>{table.status}</span></td>
+                <td>
+                  <span className={`status ${table.status}`}>
+                    {table.status}
+                  </span>
+                </td>
                 <td>
                   <QRCodeCanvas
-                    value={`http://192.168.1.43:5173/order/${table.table_id}?guest=true`}
+                    value={`${API_URL}/order/${table.table_id}?guest=true`} // ✅ ใช้ API_URL
                     size={100}
                   />
                 </td>
@@ -143,7 +146,7 @@ const Table = () => {
                         className="start-btn"
                         onClick={() =>
                           handleAction(
-                            `http://119.59.101.35:5000/tables/${table.table_id}/start`,
+                            `${API_URL}/api/tables/${table.table_id}/start`,
                             "โต๊ะถูกใช้งานแล้ว"
                           )
                         }
@@ -156,7 +159,7 @@ const Table = () => {
                         className="reset-btn"
                         onClick={() =>
                           handleAction(
-                            `http://119.59.101.35:5000/tables/${table.table_id}/reset`,
+                            `${API_URL}/api/tables/${table.table_id}/reset`,
                             "โต๊ะกลับมาใช้งานได้แล้ว"
                           )
                         }
@@ -169,7 +172,7 @@ const Table = () => {
                         console.log(
                           "📌 Navigating to:",
                           `/table-details/${table.table_id}`
-                        ); // ✅ Debug
+                        );
                         navigate(`/table-details/${table.table_id}`);
                       }}
                     >
@@ -180,7 +183,7 @@ const Table = () => {
                       className="delete-button"
                       onClick={() =>
                         handleAction(
-                          `http://119.59.101.35:5000/tables/${table.table_id}/delete`,
+                          `${API_URL}/api/tables/${table.table_id}/delete`,
                           "โต๊ะถูกลบแล้ว"
                         )
                       }
