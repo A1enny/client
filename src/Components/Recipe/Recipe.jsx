@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2"; // ✅ เพิ่ม SweetAlert2
-import "./Recipe.scss";
+import Swal from "sweetalert2";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
+import "./Recipe.scss";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
@@ -16,16 +18,20 @@ const Recipe = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get("http://119.59.101.35:5000/recipes");
+        const response = await axios.get(`${API_URL}/api/recipes`);
         console.log("📢 API Response:", response.data);
-    
-        const fetchedRecipes = response.data.results || response.data;
-        if (Array.isArray(fetchedRecipes)) {
-          setRecipes(fetchedRecipes.map((recipe) => ({
-            ...recipe,
-            image: recipe.image ? recipe.image : "/images/default.jpg",
-            ingredients: recipe.ingredients || [],
-          })));
+
+        if (Array.isArray(response.data)) {
+          setRecipes(
+            response.data.map((recipe) => ({
+              id: recipe.recipe_id,
+              name: recipe.recipe_name || "ไม่มีชื่อ",
+              image: recipe.image
+                ? `${API_URL}${recipe.image}`
+                : "/images/default.jpg",
+              ingredients: recipe.ingredients || [],
+            }))
+          );
         } else {
           console.error("❌ Unexpected response format:", response.data);
           setRecipes([]);
@@ -34,14 +40,9 @@ const Recipe = () => {
         console.error("❌ Error fetching recipes:", error);
         setRecipes([]);
       }
-    };   
+    };
     fetchRecipes();
   }, []);
-
-  // 📌 ไปหน้าแก้ไขสูตรอาหาร
-  const handleEditRecipe = (id) => {
-    navigate(`/addrecipe/${id}`);
-  };
 
   // 📌 ค้นหาสูตรอาหาร
   const handleSearch = (e) => {
@@ -58,10 +59,20 @@ const Recipe = () => {
     navigate("/addrecipe");
   };
 
+  // 📌 ไปหน้าแก้ไขสูตรอาหาร
+  const handleEditRecipe = (id) => {
+    navigate(`/addrecipe/${id}`);
+  };
+
   // 📌 ดูรายละเอียดสูตรอาหาร
-  const handleViewRecipe = (recipe) => {
-    console.log("📢 Viewing Recipe:", recipe);
-    setSelectedRecipe(recipe);
+  const handleViewRecipe = async (recipe) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/recipes/${recipe.id}`);
+      console.log("📢 Recipe Details Response:", response.data); // ✅ ตรวจสอบ API Response
+      setSelectedRecipe(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching recipe details:", error);
+    }
   };
 
   // ✅ ฟังก์ชันลบสูตรอาหาร
@@ -77,9 +88,9 @@ const Recipe = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://119.59.101.35:5000/recipes/${id}`);
-          setRecipes(recipes.filter((recipe) => recipe.id !== id)); // ✅ อัปเดตรายการ
-          setSelectedRecipe(null); // ✅ ปิดรายละเอียด
+          await axios.delete(`${API_URL}/api/recipes/${id}`);
+          setRecipes(recipes.filter((recipe) => recipe.id !== id));
+          setSelectedRecipe(null);
           Swal.fire("ลบสำเร็จ!", "สูตรอาหารถูกลบออกจากระบบแล้ว", "success");
         } catch (error) {
           Swal.fire("Error", "ไม่สามารถลบสูตรอาหารได้", "error");
@@ -133,7 +144,7 @@ const Recipe = () => {
                 alt={selectedRecipe.name}
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "/images/default.jpg";
+                  e.target.src = "/images/default.jpg"; // ✅ ใช้ภาพเริ่มต้นถ้าภาพโหลดไม่ได้
                 }}
                 style={{ width: "200px", height: "200px", objectFit: "cover" }}
               />
@@ -156,10 +167,10 @@ const Recipe = () => {
                 selectedRecipe.ingredients.length > 0 ? (
                   selectedRecipe.ingredients.map((ingredient, index) => (
                     <tr key={index}>
-                      <td>{ingredient.name}</td>
-                      <td>{ingredient.type || "ไม่พบข้อมูล"}</td>
+                      <td>{ingredient.material_name}</td>
+                      <td>{ingredient.unit_name || "ไม่พบข้อมูล"}</td>
                       <td>{ingredient.quantity}</td>
-                      <td>{ingredient.unit || "กรัม"}</td>
+                      <td>{ingredient.unit_name || "กรัม"}</td>
                     </tr>
                   ))
                 ) : (
@@ -186,7 +197,6 @@ const Recipe = () => {
           </div>
         )}
       </div>
-      
     </div>
   );
 };

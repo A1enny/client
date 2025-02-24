@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./Auth/ProtectedRoute"; 
+import ProtectedRoute from "./Auth/ProtectedRoute";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Login from "./Components/Login/Login";
 import Tables from "./Components/Table/Table";
@@ -21,23 +21,23 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login Route */}
+        {/* ✅ Login Route */}
         <Route path="/" element={<Login />} />
 
-        {/* Routes accessible by all roles */}
+        {/* ✅ Routes accessible by all roles */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/product" element={<Product />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
         <Route path="/recipe" element={<Recipe />} />
-        <Route path="/addrecipe" element={<Addrecipe />} />
+        <Route path="/addrecipe" element={<Addrecipe />} /> {/* ✅ เพิ่มสูตรใหม่ */}
+        <Route path="/addrecipe/:id" element={<Addrecipe />} /> {/* ✅ แก้ไขสูตร */}
 
-        {/* Protected Routes for Admin only */}
+        {/* ✅ Protected Routes for Admin only */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/ManageUsers" element={<ManageUsers />} />
-          <Route path="/addrecipe/:id" element={<Addrecipe />} />
+          <Route path="/manage-users" element={<ManageUsers />} />
         </Route>
 
-        {/* Protected Routes for Admin and Staff */}
+        {/* ✅ Protected Routes for Admin and Staff */}
         <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/addinventory" element={<Addinventory />} />
@@ -46,12 +46,11 @@ function App() {
           <Route path="/table" element={<Tables />} />
           <Route path="/edit-table/:id" element={<EditTable />} />
           <Route path="/table-details/:table_id" element={<TableDetails />} />
-          <Route path="/start-table/:tableId" element={<StartTable />} />
+          <Route path="/start-table/:table_id" element={<StartTable />} /> {/* ✅ เปลี่ยน tableId → table_id */}
         </Route>
 
+        {/* ✅ Route สำหรับ Order */}
         <Route path="/order/:table_id" element={<OrderPage />} />
-
-        
       </Routes>
     </BrowserRouter>
   );

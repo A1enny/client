@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../Api/axios"; // ใช้ axiosInstance ที่กำหนดค่าไว้
+import axios from "../../Api/axios";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
@@ -13,11 +13,11 @@ const Inventory = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false); // ✅ เพิ่ม loading state
-  const [error, setError] = useState(null); // ✅ เพิ่ม error state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // 📌 ดึงข้อมูลวัตถุดิบ (Pagination + Filtering)
+  // 📌 ดึงข้อมูลวัตถุดิบจาก API (พร้อม Pagination และ Filtering)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -29,7 +29,7 @@ const Inventory = () => {
           page: currentPage,
         });
 
-        const response = await axios.get(`/ingredients`, {
+        const response = await axios.get(`/api/materials`, {
           params: {
             search: searchTerm || undefined,
             category: selectedCategory || undefined,
@@ -46,7 +46,7 @@ const Inventory = () => {
           setTotalPages(1);
         }
 
-        console.log("✅ Fetched ingredients:", response.data);
+        console.log("✅ Fetched ingredients:", response.data.results);
       } catch (error) {
         setError(error.response?.data?.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
         console.error("❌ Error fetching ingredients:", error.response?.data || error.message);
@@ -62,7 +62,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(`/categories`);
+        const res = await axios.get(`/api/categories`);
         setCategories(res.data || []);
       } catch (error) {
         console.error("❌ Error fetching categories:", error.response?.data || error.message);
@@ -87,8 +87,8 @@ const Inventory = () => {
   const handleDelete = async (id) => {
     if (window.confirm("คุณแน่ใจว่าต้องการลบวัตถุดิบนี้?")) {
       try {
-        await axios.delete(`/ingredients/${id}`);
-        setIngredients((prev) => prev.filter((ingredient) => ingredient.ingredient_id !== id));
+        await axios.delete(`/api/materials/${id}`);
+        setIngredients((prev) => prev.filter((ingredient) => ingredient.material_id !== id));
         alert("ลบวัตถุดิบสำเร็จ!");
       } catch (error) {
         console.error("❌ Error deleting ingredient:", error.response?.data || error.message);
@@ -99,9 +99,8 @@ const Inventory = () => {
 
   // 📌 แก้ไขวัตถุดิบ
   const handleEdit = (ingredient) => {
-    navigate(`/edit-ingredient/${ingredient.ingredient_id}`);
+    navigate(`/edit-ingredient/${ingredient.material_id}`);
   };
-
 
   return (
     <div className="Inventory-container">
@@ -157,39 +156,22 @@ const Inventory = () => {
               {ingredients.length > 0 ? (
                 ingredients.map((ingredient, index) => {
                   const itemNumber = (currentPage - 1) * 10 + index + 1;
-                  let displayQuantity = ingredient.quantity;
-                  let unit = "g"; // ใช้หน่วยเป็นกรัมเสมอ
-
                   return (
-                    <tr key={ingredient.ingredient_id}>
+                    <tr key={ingredient.material_id}>
                       <td>{itemNumber}</td>
-                      <td>{ingredient.ingredient_name}</td>
+                      <td>{ingredient.material_name}</td>
                       <td>{ingredient.category_name || "ไม่ระบุหมวดหมู่"}</td>
+                      <td>{ingredient.stock} g</td>
                       <td>
-                        {displayQuantity} {unit}
-                      </td>
-                      <td>
-                        <button
-                          className="edit-btn"
-                          onClick={() => handleEdit(ingredient)}
-                        >
-                          แก้ไข
-                        </button>
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(ingredient.ingredient_id)}
-                        >
-                          ลบ
-                        </button>
+                        <button className="edit-btn" onClick={() => handleEdit(ingredient)}>แก้ไข</button>
+                        <button className="delete-btn" onClick={() => handleDelete(ingredient.material_id)}>ลบ</button>
                       </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }}>
-                    ไม่มีข้อมูล
-                  </td>
+                  <td colSpan="5" style={{ textAlign: "center" }}>ไม่มีข้อมูล</td>
                 </tr>
               )}
             </tbody>
@@ -198,19 +180,11 @@ const Inventory = () => {
 
         {/* Pagination */}
         <div className="pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1 || loading}
-          >
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || loading}>
             <MdArrowBackIos />
           </button>
-          <span>
-            {currentPage} / {totalPages}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || loading}
-          >
+          <span>{currentPage} / {totalPages}</span>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || loading}>
             <MdArrowForwardIos />
           </button>
         </div>

@@ -8,7 +8,7 @@ import { FaUserShield, FaKey } from "react-icons/fa";
 import { AiOutlineSwapRight } from "react-icons/ai";
 import Swal from "sweetalert2";
 
-const API_URL = "http://119.59.101.35:5000/api"; 
+const API_URL = import.meta.env.VITE_API_URL; // ✅ ใช้ค่าจาก .env
 
 const Login = () => {
   const [loginUserName, setLoginUserName] = useState("");
@@ -35,15 +35,15 @@ const Login = () => {
 
     try {
         setIsLoading(true);
-        const response = await axios.post(`${API_URL}/users/login`, {
-            username: loginUserName,
-            password: loginPassword,
+        const response = await axios.post(`${API_URL}/api/users/login`, {
+          username: loginUserName,
+          password: loginPassword,
         });
 
         console.log("✅ API ตอบกลับ:", response.data);
 
-        // ✅ ใช้ message เช็คเงื่อนไขแทน res_code
-        if (response.data.message.includes("เข้าสู่ระบบสำเร็จ")) {
+        // ✅ ตรวจสอบค่า `success` ที่ API ส่งมา
+        if (response.data.success) {
             Swal.fire({
                 icon: "success",
                 title: "✅ เข้าสู่ระบบสำเร็จ!",
@@ -51,10 +51,10 @@ const Login = () => {
                 timer: 2000,
             });
 
-            // ✅ แก้ไขการบันทึกข้อมูลลง LocalStorage
-            localStorage.setItem("user_id", response.data.user.id);
-            localStorage.setItem("role", response.data.user.role);
-            localStorage.setItem("username", response.data.user.username);
+            // ✅ บันทึกข้อมูลลง LocalStorage
+            localStorage.setItem("user_id", response.data.user_id);
+            localStorage.setItem("role", response.data.role);
+            localStorage.setItem("username", response.data.username);
             sessionStorage.setItem("isLoggedIn", "true");
 
             setTimeout(() => {
@@ -69,10 +69,14 @@ const Login = () => {
         }
     } catch (error) {
         console.error("❌ Login error:", error);
+
+        // ✅ แสดงข้อความจาก API ถ้ามี
+        const errorMessage = error.response?.data?.message || "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+        
         Swal.fire({
             icon: "error",
             title: "🚨 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์",
-            text: "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต",
+            text: errorMessage,
             confirmButtonText: "ตกลง",
         });
     } finally {

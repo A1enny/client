@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../../Api/axios"; // ✅ ใช้ axiosInstance ที่มี baseURL
-import Swal from "sweetalert2"; // ✅ เพิ่ม SweetAlert2
+import Swal from "sweetalert2";
 import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
 import "./Addinventory.scss";
@@ -11,8 +11,8 @@ const AddInventory = () => {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ เพิ่ม Loading state
-  const [error, setError] = useState(null); // ✅ เพิ่ม Error state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // 📌 ดึงข้อมูลหมวดหมู่จาก API
@@ -20,7 +20,7 @@ const AddInventory = () => {
     const fetchCategories = async () => {
       setError(null);
       try {
-        const res = await axios.get("/categories");
+        const res = await axios.get("/api/categories"); // ✅ ใช้ API `/api/categories`
         setCategories(res.data || []);
       } catch (error) {
         setError("❌ ไม่สามารถโหลดหมวดหมู่ได้");
@@ -37,7 +37,7 @@ const AddInventory = () => {
     if (!ingredientName.trim() || !categoryId || !quantity) {
       Swal.fire({
         icon: "warning",
-        title: "ข้อมูลไม่ครบถ้วน",
+        title: "⚠ ข้อมูลไม่ครบถ้วน",
         text: "กรุณากรอกข้อมูลให้ครบทุกช่อง!",
       });
       return;
@@ -47,7 +47,7 @@ const AddInventory = () => {
     if (isNaN(quantityInGrams) || quantityInGrams <= 0) {
       Swal.fire({
         icon: "error",
-        title: "ปริมาณไม่ถูกต้อง",
+        title: "🚫 ปริมาณไม่ถูกต้อง",
         text: "ปริมาณต้องเป็นตัวเลขที่มากกว่า 0!",
       });
       return;
@@ -55,27 +55,33 @@ const AddInventory = () => {
 
     setLoading(true);
     try {
-      await axios.post("/ingredients", {
-        ingredient_name: ingredientName.trim(),
-        category_id: parseInt(categoryId, 10),
-        quantity: quantityInGrams,
+      await axios.post("/api/materials", {
+        name: ingredientName, // ✅ ใช้ name ตาม backend
+        category_id: parseInt(categoryId, 10), // ✅ category_id ต้องเป็นตัวเลข
+        unit_id: 1, // ✅ เพิ่ม unit_id หาก backend ต้องการ
+        stock: parseFloat(quantity), // ✅ stock ต้องเป็นตัวเลข
       });
+      
 
       Swal.fire({
         icon: "success",
-        title: "เพิ่มวัตถุดิบสำเร็จ!",
+        title: "🎉 เพิ่มวัตถุดิบสำเร็จ!",
         text: `${ingredientName} ถูกเพิ่มในระบบแล้ว`,
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
+        // ✅ รีเซ็ตค่าหลังจากเพิ่มวัตถุดิบสำเร็จ
+        setIngredientName("");
+        setCategoryId("");
+        setQuantity("");
         navigate("/inventory");
       });
     } catch (error) {
       console.error("❌ Error adding ingredient:", error.response?.data || error.message);
       Swal.fire({
         icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถเพิ่มวัตถุดิบได้ กรุณาลองใหม่",
+        title: "❌ เกิดข้อผิดพลาด",
+        text: error.response?.data?.error || "ไม่สามารถเพิ่มวัตถุดิบได้ กรุณาลองใหม่",
       });
     } finally {
       setLoading(false);
