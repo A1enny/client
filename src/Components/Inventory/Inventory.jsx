@@ -1,122 +1,142 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/axios";
+import Swal from "sweetalert2";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
-import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import "./Inventory.scss";
+import EditIngredientModal from "./Edit/EditIngredientModal";
+import InventoryTable from "./InventoryTable";
 
 const Inventory = () => {
+  const [activeTab, setActiveTab] = useState("batches"); // ค่าเริ่มต้นเป็นล็อตวัตถุดิบ
   const [ingredients, setIngredients] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedIngredient, setSelectedIngredient] = useState(null);
   const navigate = useNavigate();
 
-  // 📌 ดึงข้อมูลวัตถุดิบจาก API (พร้อม Pagination และ Filtering)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
       try {
-        console.log("📢 Fetching ingredients with filters:", {
-          searchTerm,
+        let response;
+        const params = {
+          search: searchTerm,
           category: selectedCategory,
           page: currentPage,
-        });
+          limit: 10,
+        };
 
-        const response = await axios.get(`/api/materials`, {
-          params: {
-            search: searchTerm || undefined,
-            category: selectedCategory || undefined,
-            page: currentPage,
-            limit: 10,
-          },
-        });
-
-        if (response.data && Array.isArray(response.data.results)) {
-          setIngredients(response.data.results);
-          setTotalPages(response.data.totalPages || 1);
+        if (activeTab === "batches") {
+          await axios.get("/api/inventory-batches?page=" + currentPage + "&limit=10", { params });
+          setBatches(response.data.results || []);
+        } else if (activeTab === "expired") {
+          response = await axios.get("/api/materials/expired", { params });
+          setIngredients(response.data.results || []);
         } else {
-          setIngredients([]);
-          setTotalPages(1);
+          response = await axios.get("/api/materials", { params });
+          setIngredients(response.data.results || []);
         }
 
-        console.log("✅ Fetched ingredients:", response.data.results);
+        setTotalPages(response.data.totalPages || 1);
       } catch (error) {
-        setError(error.response?.data?.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
-        console.error("❌ Error fetching ingredients:", error.response?.data || error.message);
+        console.error("❌ Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [searchTerm, selectedCategory, currentPage]);
+  }, [activeTab, searchTerm, selectedCategory, currentPage]);
 
-  // 📌 ดึงข้อมูลหมวดหมู่
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get(`/api/categories`);
-        setCategories(res.data || []);
-      } catch (error) {
-        console.error("❌ Error fetching categories:", error.response?.data || error.message);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  // 📌 เปลี่ยนหน้าของ Pagination
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
 
-  // 📌 รีเซ็ต Pagination เมื่อเปลี่ยนการค้นหา
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory]);
+  const handleEditIngredient = (ingredient) => {
+    setSelectedIngredient(ingredient);
+    setEditModalOpen(true);
+  };
 
-  // 📌 ลบวัตถุดิบ
-  const handleDelete = async (id) => {
-    if (window.confirm("คุณแน่ใจว่าต้องการลบวัตถุดิบนี้?")) {
+  const handleDelete = async (item) => {
+    const id = activeTab === "batches" ? item.batch_id : item.material_id;
+    const apiEndpoint =
+      activeTab === "batches" ? "/api/inventory-batches" : "/api/materials";
+
+    if (!id) {
+      Swal.fire("❌ ลบไม่สำเร็จ", "ไม่พบรหัส", "error");
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: `⚠ ลบข้อมูล?`,
+      text: "คุณแน่ใจหรือไม่? การลบนี้จะไม่สามารถกู้คืนได้",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (confirm.isConfirmed) {
       try {
-        await axios.delete(`/api/materials/${id}`);
-        setIngredients((prev) => prev.filter((ingredient) => ingredient.material_id !== id));
-        alert("ลบวัตถุดิบสำเร็จ!");
+        await axios.delete(`${apiEndpoint}/${id}`);
+        Swal.fire("✅ ลบสำเร็จ!", "ข้อมูลถูกลบออกจากระบบ", "success");
+
+        if (activeTab === "batches") {
+          setBatches((prev) => prev.filter((b) => b.batch_id !== id));
+        } else {
+          setIngredients((prev) => prev.filter((i) => i.material_id !== id));
+        }
       } catch (error) {
-        console.error("❌ Error deleting ingredient:", error.response?.data || error.message);
-        alert("เกิดข้อผิดพลาดในการลบวัตถุดิบ");
+        Swal.fire("❌ ลบไม่สำเร็จ", "เกิดข้อผิดพลาด", "error");
       }
     }
   };
 
-  // 📌 แก้ไขวัตถุดิบ
-  const handleEdit = (ingredient) => {
-    navigate(`/edit-ingredient/${ingredient.material_id}`);
+  const handleDetail = (item) => {
+    const id = activeTab === "batches" ? item.batch_id : item.material_id;
+    navigate(`/inventory/detail/${id}`);
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("/api/categories");
+        setCategories(res.data || []);
+      } catch (error) {
+        console.error("❌ Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <div className="Inventory-container">
       <Navbar />
       <Sidebar />
       <div className="Inventory-content">
-        <h1>จัดการคลังวัตถุดิบ</h1>
-
-        {/* ปุ่มเพิ่มวัตถุดิบ */}
-        <div className="Inventory-actions">
-          <button onClick={() => navigate("/Addinventory")} className="add-btn">
-            เพิ่มวัตถุดิบ
+        <div className="Header">
+          <h1>จัดการคลังวัตถุดิบ</h1>
+          <button
+            className="add-button"
+            onClick={() => navigate("/AddInventory")}
+          >
+            + เพิ่มวัตถุดิบ
           </button>
         </div>
 
-        {/* ตัวกรองและช่องค้นหา */}
+        {/* ตัวกรอง */}
         <div className="Inventory-filters">
           <select
             value={selectedCategory}
@@ -135,59 +155,91 @@ const Inventory = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button onClick={() => setSearchTerm("")}>ล้างตัวกรอง</button>
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedCategory("");
+            }}
+          >
+            ล้างตัวกรอง
+          </button>
         </div>
 
-        {/* ตารางวัตถุดิบ */}
+        {/* ปุ่มเลือกหมวดหมู่ */}
+        <div className="tab-navigation">
+          {["batches", "normal", "expired"].map((tab) => (
+            <button
+              key={tab}
+              className={activeTab === tab ? "active" : ""}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === "normal"
+                ? "คลังวัตถุดิบ"
+                : tab === "expired"
+                ? "คลังวัตถุดิบหมดอายุ"
+                : "ล็อตวัตถุดิบ"}
+            </button>
+          ))}
+        </div>
+
+        {/* แสดงข้อมูล */}
         {loading ? (
           <p>กำลังโหลดข้อมูล...</p>
         ) : (
-          <table className="Inventory-table">
-            <thead>
-              <tr>
-                <th>รหัสวัตถุดิบ</th>
-                <th>ชื่อวัตถุดิบ</th>
-                <th>หมวดหมู่</th>
-                <th>จำนวน</th>
-                <th>จัดการ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ingredients.length > 0 ? (
-                ingredients.map((ingredient, index) => {
-                  const itemNumber = (currentPage - 1) * 10 + index + 1;
-                  return (
-                    <tr key={ingredient.material_id}>
-                      <td>{itemNumber}</td>
-                      <td>{ingredient.material_name}</td>
-                      <td>{ingredient.category_name || "ไม่ระบุหมวดหมู่"}</td>
-                      <td>{ingredient.stock} g</td>
-                      <td>
-                        <button className="edit-btn" onClick={() => handleEdit(ingredient)}>แก้ไข</button>
-                        <button className="delete-btn" onClick={() => handleDelete(ingredient.material_id)}>ลบ</button>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }}>ไม่มีข้อมูล</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <>
+            <InventoryTable
+              data={activeTab === "batches" ? batches : ingredients}
+              type={activeTab}
+              handleEdit={handleEditIngredient}
+              handleDelete={handleDelete}
+              handleDetail={handleDetail}
+            />
+            {/* Pagination */}
+            <div className="pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                {"<"} ก่อนหน้า
+              </button>
+              <span>
+                หน้า {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                ถัดไป {">"}
+              </button>
+            </div>
+          </>
         )}
 
-        {/* Pagination */}
-        <div className="pagination">
-          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || loading}>
-            <MdArrowBackIos />
-          </button>
-          <span>{currentPage} / {totalPages}</span>
-          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || loading}>
-            <MdArrowForwardIos />
-          </button>
-        </div>
+        {/* Modal แก้ไขวัตถุดิบ */}
+        {editModalOpen && (
+          <EditIngredientModal
+            ingredient={selectedIngredient}
+            onClose={() => setEditModalOpen(false)}
+          />
+        )}
+      </div>
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          {"<"} ก่อนหน้า
+        </button>
+        <span>
+          {" "}
+          หน้า {currentPage} / {totalPages}{" "}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          ถัดไป {">"}
+        </button>
       </div>
     </div>
   );

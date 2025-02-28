@@ -8,7 +8,7 @@ import { FaUserShield, FaKey } from "react-icons/fa";
 import { AiOutlineSwapRight } from "react-icons/ai";
 import Swal from "sweetalert2";
 
-const API_URL = import.meta.env.VITE_API_URL; // ✅ ใช้ค่าจาก .env
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const [loginUserName, setLoginUserName] = useState("");
@@ -20,12 +20,12 @@ const Login = () => {
     event.preventDefault();
 
     if (!loginUserName || !loginPassword) {
-        Swal.fire({
-            icon: "warning",
-            title: "⚠ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน",
-            confirmButtonText: "ตกลง",
-        });
-        return;
+      Swal.fire({
+        icon: "warning",
+        title: "⚠ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน",
+        confirmButtonText: "ตกลง",
+      });
+      return;
     }
 
     console.log("📤 กำลังส่งไปยัง API:", { 
@@ -34,56 +34,55 @@ const Login = () => {
     });
 
     try {
-        setIsLoading(true);
-        const response = await axios.post(`${API_URL}/api/users/login`, {
-          username: loginUserName,
-          password: loginPassword,
-        });
+      setIsLoading(true);
+      const response = await axios.post(`${API_URL}/api/users/login`, {
+        username: loginUserName,
+        password: loginPassword,
+      });
 
-        console.log("✅ API ตอบกลับ:", response.data);
+      console.log("✅ API ตอบกลับ:", response.data);
 
-        // ✅ ตรวจสอบค่า `success` ที่ API ส่งมา
-        if (response.data.success) {
-            Swal.fire({
-                icon: "success",
-                title: "✅ เข้าสู่ระบบสำเร็จ!",
-                text: response.data.message,
-                timer: 2000,
-            });
-
-            // ✅ บันทึกข้อมูลลง LocalStorage
-            localStorage.setItem("user_id", response.data.user_id);
-            localStorage.setItem("role", response.data.role);
-            localStorage.setItem("username", response.data.username);
-            sessionStorage.setItem("isLoggedIn", "true");
-
-            setTimeout(() => {
-                navigate("/dashboard");
-            }, 2000);
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
-                confirmButtonText: "ลองอีกครั้ง",
-            });
-        }
-    } catch (error) {
-        console.error("❌ Login error:", error);
-
-        // ✅ แสดงข้อความจาก API ถ้ามี
-        const errorMessage = error.response?.data?.message || "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
-        
+      // ✅ ตรวจสอบว่ามี `token` หรือไม่
+      if (response.data.token) {
         Swal.fire({
-            icon: "error",
-            title: "🚨 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์",
-            text: errorMessage,
-            confirmButtonText: "ตกลง",
+          icon: "success",
+          title: "✅ เข้าสู่ระบบสำเร็จ!",
+          text: response.data.message,
+          timer: 2000,
         });
-    } finally {
-        setIsLoading(false);
-    }
-};
 
+        // ✅ บันทึกข้อมูลลง LocalStorage
+        localStorage.setItem("token", response.data.token); // เก็บ JWT Token
+        localStorage.setItem("user_id", response.data.user_id);
+        localStorage.setItem("role", response.data.role);
+        localStorage.setItem("username", response.data.username);
+        sessionStorage.setItem("isLoggedIn", "true");
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+          confirmButtonText: "ลองอีกครั้ง",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Login error:", error);
+
+      const errorMessage = error.response?.data?.message || "โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+      
+      Swal.fire({
+        icon: "error",
+        title: "🚨 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์",
+        text: errorMessage,
+        confirmButtonText: "ตกลง",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="loginPage flex">

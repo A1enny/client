@@ -12,7 +12,7 @@ import ManageUsers from "./Components/Mmu/Mmu";
 import StartTable from "./Components/Table/StartTable/Starttable";
 import TableDetails from "./Components/Table/TableDetails/TableDetails";
 import Addinventory from "./Components/Inventory/Addinventory/Addinventory";
-import EditIngredient from "./Components/Inventory/EditIngredient/EditIngredient";
+import EditIngredientModal from "./Components/Inventory/Edit/EditIngredientModal";
 import Addrecipe from "./Components/Recipe/AddRecipe/Addrecipe";
 import OrderPage from "./Components/pages/Orderpage/Orderpage";
 import EditTable from "./Components/Table/EditTable/EditTable";
@@ -23,32 +23,31 @@ function App() {
       <Routes>
         {/* ✅ Login Route */}
         <Route path="/" element={<Login />} />
-
         {/* ✅ Routes accessible by all roles */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/product" element={<Product />} />
         <Route path="/profilesettings" element={<ProfileSettings />} />
         <Route path="/recipe" element={<Recipe />} />
-        <Route path="/addrecipe" element={<Addrecipe />} /> {/* ✅ เพิ่มสูตรใหม่ */}
-        <Route path="/addrecipe/:id" element={<Addrecipe />} /> {/* ✅ แก้ไขสูตร */}
-
+        <Route path="/addrecipe" element={<Addrecipe />} />{" "}
+        {/* ✅ เพิ่มสูตรใหม่ */}
+        <Route path="/addrecipe/:id" element={<Addrecipe />} />{" "}
+        {/* ✅ แก้ไขสูตร */}
         {/* ✅ Protected Routes for Admin only */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/manage-users" element={<ManageUsers />} />
+        <Route path="/ManageUsers" element={<ManageUsers />} />
         </Route>
-
         {/* ✅ Protected Routes for Admin and Staff */}
         <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/addinventory" element={<Addinventory />} />
-          <Route path="/edit-ingredient/:id" element={<EditIngredient />} />
+          <Route path="/edit-ingredient/:id" element={<EditIngredientModal />} />
           <Route path="/report" element={<Report />} />
           <Route path="/table" element={<Tables />} />
           <Route path="/edit-table/:id" element={<EditTable />} />
           <Route path="/table-details/:table_id" element={<TableDetails />} />
-          <Route path="/start-table/:table_id" element={<StartTable />} /> {/* ✅ เปลี่ยน tableId → table_id */}
+          <Route path="/start-table/:table_id" element={<StartTable />} />{" "}
+          {/* ✅ เปลี่ยน tableId → table_id */}
         </Route>
-
         {/* ✅ Route สำหรับ Order */}
         <Route path="/order/:table_id" element={<OrderPage />} />
       </Routes>

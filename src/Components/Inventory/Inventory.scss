@@ -3,7 +3,8 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  margin-top: 3.9rem;
+  margin-top: 4rem;
+  background-color: #f5f7fa;
 
   .Inventory-content {
     flex: 1;
@@ -11,40 +12,54 @@
     flex-direction: column;
     transition: margin-left 0.3s ease;
     padding: 20px;
+    .Header{
+      display: flex;
+      justify-content: space-between; // ✅ ใช้ space-between แทน align-items
+      align-items: center;
+      margin-bottom: 20px;
+    
+    .add-button {
+      padding: 10px 15px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease-in-out;
+
+    }
 
     h1 {
       margin-bottom: 20px;
-      font-size: 24px;
+      font-size: 26px;
+      font-weight: bold;
       color: #333;
+      text-align: left;
     }
-
-    .Inventory-actions{
+    }
+    .Inventory-actions {
       display: flex;
-      align-items: center;
+      justify-content: flex-end;
       gap: 10px;
       margin-bottom: 20px;
-      justify-content: flex-end; 
 
       button {
-        padding: 10px 15px;
-        background-color: #007bff;
+        padding: 12px 18px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         cursor: pointer;
-        width: auto; /* Allow the button to auto-size based on content */
-        min-width: 150px; /* Ensure buttons are not too small */
-        
+        font-size: 14px;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+
         &:hover {
           background-color: #0056b3;
-        }
-
-        &:disabled {
-          background-color: #ccc;
-          cursor: not-allowed;
+          transform: translateY(-2px);
         }
       }
-
     }
 
     .Inventory-filters {
@@ -52,78 +67,64 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 20px;
+      justify-content: center;
 
-      select {
+      select{
         padding: 10px;
         font-size: 14px;
         border: 1px solid #ccc;
-        border-radius: 4px;
-        transition: border-color 0.2s;
-        max-width: 150px;
-        &:focus {
-          border-color: #007bff;
-          outline: none;
-        }
+        border-radius: 6px;
+        transition: all 0.3s ease-in-out;
+        width: 200px;
       }
 
       input {
-        flex: 1;
         width: 100%;
-        padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        transition: border-color 0.2s;
-        min-width: 150px;
+
         &:focus {
           border-color: #007bff;
           outline: none;
+          box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
         }
       }
 
-      
-
       button {
-        width: auto;
+        min-width: 150px;
         padding: 10px 15px;
-        background-color: #007bff;
+        background: linear-gradient(135deg, #007bff, #0056b3);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-size: 14px;
+        transition: all 0.3s ease-in-out;
 
         &:hover {
           background-color: #0056b3;
-        }
-
-        &:disabled {
-          background-color: #ccc;
-          cursor: not-allowed;
+          transform: scale(1.05);
         }
       }
     }
 
     .Inventory-table {
-      
       width: 100%;
       border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: #ffffff;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       overflow: hidden;
 
       th,
       td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
+        padding: 14px;
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
       }
 
       th {
-        background-color: #f7f7f7;
+        background-color: #f8f9fa;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 16px;
         color: #333;
       }
 
@@ -131,40 +132,120 @@
         background-color: #f1f1f1;
       }
 
-      .edit-btn {
+      .view-btn {
         background-color: #28a745;
         color: white;
+        padding: 8px 14px;
         border: none;
-        padding: 6px 12px;
-        font-size: 12px;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background-color 0.3s;
-        max-width: 80px;
+        font-size: 12px;
+        transition: all 0.3s ease-in-out;
+
         &:hover {
           background-color: #218838;
+          transform: scale(1.05);
+        }
+      }
+
+      .edit-btn {
+        background-color: #ffc107;
+        color: white;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 8px;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          background-color: #e0a800;
+          transform: scale(1.05);
         }
       }
 
       .delete-btn {
-        justify-content: center;
-        max-width: 70px;
-        margin-left: 10px;
         background-color: #dc3545;
         color: white;
+        padding: 8px 14px;
         border: none;
-        padding: 6px 12px;
-        font-size: 12px;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-size: 12px;
+        margin-left: 8px;
+        transition: all 0.3s ease-in-out;
 
         &:hover {
           background-color: #c82333;
+          transform: scale(1.05);
         }
       }
     }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      gap: 10px;
+
+      button {
+        width: 25px;
+        height: 25px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          background-color: #0056b3;
+          transform: scale(1.1);
+        }
+
+        &:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+      }
+
+      span {
+        font-size: 16px;
+        color: #333;
+        font-weight: bold;
+      }
+    }
   }
+
+  .tab-navigation {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  
+    button {
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      background: #ddd;
+      font-size: 16px;
+      border-radius: 5px;
+      transition: 0.3s;
+  
+      &.active {
+        background: #007bff;
+        color: white;
+      }
+  
+      &:hover {
+        background: #0056b3;
+        color: white;
+      }
+    }
+  }
+  
 
   .sidebar.collapsed ~ .Inventory-content {
     margin-left: 75px;
@@ -173,42 +254,4 @@
   .sidebar:not(.collapsed) ~ .Inventory-content {
     margin-left: 250px;
   }
-}
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-  gap: 10px;
-}
-
-.pagination button {
-  max-width: 40px;
-  padding: 8px 15px;
-  background-color: var(--primaryColor);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: var(--btnHoverColor);
-  }
-
-  &:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
-  }
-}
-
-.pagination span {
-  font-size: 16px;
-  color: #333;
-}
-
-.pagination .disabled {
-  pointer-events: none;
-  opacity: 0.5;
 }

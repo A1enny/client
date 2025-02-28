@@ -14,7 +14,6 @@ const ProfileSettings = () => {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
     phone: "",
     address: "",
     profileImage: "",
@@ -27,34 +26,35 @@ const ProfileSettings = () => {
     confirmPassword: "",
   });
 
-  const imageUrl = formData.profileImage?.startsWith("http")
-    ? formData.profileImage
-    : formData.profileImage
-    ? `http://localhost:3002${formData.profileImage}`
-    : "http://localhost:3002/uploads/default.png";
-
+  // ✅ ดึงข้อมูลผู้ใช้จาก LocalStorage
   useEffect(() => {
-    const storedUserId = localStorage.getItem("user_id");
-    if (!storedUserId) {
-      Swal.fire("⚠️ กรุณาเข้าสู่ระบบ", "", "warning").then(() => navigate("/"));
+    const storedUserId = parseInt(localStorage.getItem("user_id"), 10);
+    console.log("🔹 User ID:", storedUserId);
+
+    if (!storedUserId || isNaN(storedUserId)) {
+      Swal.fire("⚠️ ข้อมูลผู้ใช้ไม่ถูกต้อง", "", "error").then(() =>
+        navigate("/login")
+      );
       return;
     }
+
     setUserId(storedUserId);
     fetchProfile(storedUserId);
     fetchUsers();
   }, [navigate]);
 
+  // ✅ ฟังก์ชันดึงข้อมูลโปรไฟล์
   const fetchProfile = async (id) => {
     if (!id) return;
     try {
-      const res = await axios.get(
-        `http://119.59.101.35:5000/users/profile/${id}`
-      );
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`/api/users/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       console.log("📌 ข้อมูลโปรไฟล์ที่ได้จาก API:", res.data);
 
       setFormData({
         fullName: res.data.username || "",
-        email: res.data.email || "",
         phone: res.data.phone_number || "",
         address: res.data.address || "",
         profileImage: res.data.profile_image || "",
@@ -64,57 +64,51 @@ const ProfileSettings = () => {
       localStorage.setItem("profileImage", res.data.profile_image || "");
       localStorage.setItem("role", res.data.role || "");
     } catch (error) {
-      Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่สามารถโหลดข้อมูลได้", "error");
+      console.error("❌ ไม่สามารถโหลดข้อมูลโปรไฟล์:", error);
+      handleAuthError(error);
     }
   };
 
+  // ✅ ฟังก์ชันดึงข้อมูล Users ทั้งหมด
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://119.59.101.35:5000/users");
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       console.log("📌 ดึงข้อมูล users สำเร็จ:", res.data);
       setUsers(res.data);
     } catch (error) {
       console.error("❌ ไม่สามารถดึงข้อมูล users ได้:", error);
-      Swal.fire("❌ ไม่สามารถโหลดข้อมูลผู้ใช้", "", "error");
+      handleAuthError(error);
     }
   };
 
-  const handleUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const uploadForm = new FormData();
-    uploadForm.append("profileImage", file);
-
-    try {
-      const res = await axios.post(
-        `/api/users/upload-profile/${userId}`,
-        uploadForm,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const newProfileImage = res.data.profileImageUrl;
-      console.log("✅ รูปโปรไฟล์ที่อัปโหลด:", newProfileImage);
-
-      setFormData((prev) => ({ ...prev, profileImage: newProfileImage }));
-      localStorage.setItem("profileImage", newProfileImage);
-
-      Swal.fire("✅ อัปโหลดรูปสำเร็จ!", "", "success");
-    } catch (error) {
-      Swal.fire("❌ อัปโหลดรูปไม่สำเร็จ!", "", "error");
+  // ✅ ฟังก์ชันจัดการข้อผิดพลาดเกี่ยวกับ Authentication
+  const handleAuthError = (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      Swal.fire("❌ เซสชันหมดอายุ", "โปรดเข้าสู่ระบบใหม่", "error").then(() => {
+        localStorage.clear();
+        navigate("/login");
+      });
+    } else {
+      Swal.fire("❌ เกิดข้อผิดพลาด", "กรุณาลองใหม่อีกครั้ง", "error");
     }
   };
 
+  // ✅ ฟังก์ชันจัดการการเปลี่ยนข้อมูลในฟอร์ม
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ ฟังก์ชันบันทึกข้อมูลโปรไฟล์
   const handleSaveDetails = async () => {
     try {
-      await axios.put(`/api/users/profile/${userId}`, formData);
+      const token = localStorage.getItem("token");
+      await axios.put(`/api/users/${userId}`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       Swal.fire("✅ บันทึกข้อมูลสำเร็จ!", "", "success");
       setEditMode(false);
     } catch (error) {
@@ -122,36 +116,41 @@ const ProfileSettings = () => {
     }
   };
 
+  // ✅ ฟังก์ชันเปลี่ยนรหัสผ่าน
   const handlePasswordChange = async () => {
-    if (
-      !passwordData.currentPassword ||
-      !passwordData.newPassword ||
-      !passwordData.confirmPassword
-    ) {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       Swal.fire("❌ กรุณากรอกรหัสผ่านให้ครบถ้วน!", "", "error");
       return;
     }
+
     if (passwordData.newPassword.length < 6) {
       Swal.fire("⚠️ รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร!", "", "warning");
       return;
     }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       Swal.fire("❌ รหัสผ่านใหม่ไม่ตรงกัน!", "", "error");
       return;
     }
+
     try {
-      await axios.put(`/api/users/password/${userId}`, {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      });
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `/api/users/password/${userId}`,
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       Swal.fire("✅ เปลี่ยนรหัสผ่านเรียบร้อย!", "", "success");
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
-      Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่สามารถเปลี่ยนรหัสผ่านได้", "error");
+      console.error("❌ เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน:", error);
+      handleAuthError(error);
     }
   };
 
@@ -161,17 +160,8 @@ const ProfileSettings = () => {
       <Sidebar />
       <div className="profile-content">
         <div className="profile-header">
-          <img
-            className="profile-pic"
-            src={imageUrl}
-            alt="Profile"
-            style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-          />
           <div className="profile-info">
             <h1>ตั้งค่าโปรไฟล์</h1>
-            <p>
-              {formData.email} ({formData.role})
-            </p>
           </div>
         </div>
 
@@ -194,11 +184,6 @@ const ProfileSettings = () => {
           <div className="details-content">
             <h2>My Details</h2>
             <form>
-              <div className="form-group">
-                <label>Profile Picture</label>
-                <input type="file" accept="image/*" onChange={handleUpload} />
-              </div>
-
               <div className="form-group">
                 <label>Full Name</label>
                 <input

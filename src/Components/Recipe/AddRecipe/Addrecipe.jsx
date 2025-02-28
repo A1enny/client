@@ -7,7 +7,7 @@ import Navbar from "../../Layout/Navbar/Navbar";
 import Sidebar from "../../Layout/Sidebar/Sidebar";
 import "./Addrecipe.scss";
 
-const API_URL = import.meta.env.VITE_API_URL; // ✅ ใช้ค่าจาก .env
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Addrecipe = () => {
   const navigate = useNavigate();
@@ -28,79 +28,62 @@ const Addrecipe = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // 📌 โหลดข้อมูลวัตถุดิบทั้งหมด
   useEffect(() => {
     const fetchMaterials = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await axios.get(`${API_URL}/api/materials?limit=1000`);
-        if (!response.data || !Array.isArray(response.data.results)) {
-          throw new Error("Invalid response format");
-        }
-
         setIngredientOptions(
           response.data.results.map((item) => ({
             value: item.material_id,
-            label: item.name,
+            label: item.material_name,
           }))
         );
       } catch (error) {
-        console.error("❌ Error fetching materials:", error.response?.data || error.message);
+        console.error("❌ Error fetching materials:", error);
         setError("ไม่สามารถดึงข้อมูลวัตถุดิบได้");
       } finally {
         setLoading(false);
       }
     };
-
     fetchMaterials();
   }, []);
 
-  // 📌 โหลดค่า category_id อัตโนมัติ
   useEffect(() => {
     const fetchCategory = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/categories/default`);
         setRecipe((prev) => ({
           ...prev,
-          category_id: response.data.category_id ?? 1, // ถ้า null ให้ใช้ค่าเริ่มต้น 1
+          category_id: response.data.category_id ?? 1,
         }));
       } catch (error) {
         console.error("❌ Error fetching category:", error);
       }
     };
-
     fetchCategory();
   }, []);
 
-  // 📌 โหลดข้อมูลสูตรอาหารถ้าเป็นการแก้ไข
   useEffect(() => {
-    console.log("🔍 Recipe ID:", id); // ✅ Debugging
-
-    if (!id || id === "undefined") {
-      console.warn("⚠️ Invalid Recipe ID, skipping fetch...");
-      return; // ❌ หยุดการโหลดถ้า ID ไม่ถูกต้อง
-    }
-
+    if (!id) return;
     const fetchRecipe = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`${API_URL}/api/recipes/${id}`);
         const recipeData = response.data;
 
-        setRecipe((prev) => ({
-          ...prev,
+        setRecipe({
           recipe_name: recipeData.recipe_name || "",
           category_id: recipeData.category_id || 1,
           image_url: recipeData.image
             ? `${API_URL}/uploads/recipes/${recipeData.image}`
             : `${API_URL}/uploads/recipes/default.jpg`,
-        }));
+        });
 
-        // ✅ ใช้ material_id แทน ingredient_id
         setIngredients(
           recipeData.ingredients.map((ing) => ({
-            material_id: ing.material_id, 
+            material_id: ing.material_id,
             name: ing.material_name || "ไม่พบชื่อ",
             quantity: ing.amount || 0,
             unit: ing.unit_name || "กรัม",
@@ -113,21 +96,13 @@ const Addrecipe = () => {
         setLoading(false);
       }
     };
-
     fetchRecipe();
   }, [id]);
 
-  // 📌 เลือกวัตถุดิบ
-  const handleIngredientSelect = (selectedOption) => {
-    setSelectedIngredient(selectedOption);
-  };
+  const handleIngredientSelect = (selectedOption) => setSelectedIngredient(selectedOption);
 
-  // 📌 ใส่ค่าปริมาณวัตถุดิบ
-  const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-  };
+  const handleQuantityChange = (e) => setQuantity(e.target.value);
 
-  // 📌 เพิ่มวัตถุดิบในสูตรอาหาร
   const addIngredient = () => {
     if (!selectedIngredient || !quantity) {
       Swal.fire("Error", "กรุณาเลือกวัตถุดิบและปริมาณ", "error");
@@ -137,19 +112,23 @@ const Addrecipe = () => {
     setIngredients((prev) => [
       ...prev,
       {
-        material_id: selectedIngredient.value, 
+        material_id: selectedIngredient.value,
         name: selectedIngredient.label,
         quantity,
-        unit: "กรัม", // ✅ กำหนดหน่วยเริ่มต้น
+        unit: "กรัม",
       },
     ]);
-
     setSelectedIngredient(null);
     setQuantity("");
   };
 
-  // 📌 ส่งข้อมูลสูตรอาหาร
   const submitRecipe = async () => {
+    console.log("📢 Data before submit:", {
+      recipe_name: recipe.recipe_name,
+      category_id: recipe.category_id,
+      image: recipe.image,
+      ingredients,
+    });
     if (!recipe.recipe_name || !recipe.category_id || ingredients.length === 0) {
       Swal.fire("Error", "กรุณากรอกชื่อสูตรอาหาร", "error");
       return;
@@ -159,33 +138,21 @@ const Addrecipe = () => {
       const formData = new FormData();
       formData.append("recipe_name", recipe.recipe_name);
       formData.append("category_id", recipe.category_id);
-
       if (recipe.image) {
         formData.append("image", recipe.image);
       } else {
         formData.append("image", recipe.image_url?.split("/").pop() || "default.jpg");
       }
-
       formData.append("ingredients", JSON.stringify(ingredients));
-
-      console.log("📌 FormData Before Submit:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
 
       const url = id ? `${API_URL}/api/recipes/${id}` : `${API_URL}/api/recipes`;
       const method = id ? "put" : "post";
 
-      await axios({
-        method,
-        url,
-        data: formData,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios({ method, url, data: formData, headers: { "Content-Type": "multipart/form-data" } });
 
       Swal.fire("สำเร็จ", "บันทึกสูตรอาหารเรียบร้อย", "success").then(() => navigate("/recipe"));
     } catch (error) {
-      console.error("❌ Error submitting recipe:", error.response?.data || error.message);
+      console.error("❌ Error submitting recipe:", error);
       Swal.fire("Error", "เกิดข้อผิดพลาดในการบันทึกสูตรอาหาร", "error");
     }
   };
@@ -197,7 +164,6 @@ const Addrecipe = () => {
       <div className="add-recipe-content">
         <h2>{title}</h2>
         <form className="create-form">
-          {/* 📌 อัปโหลดรูปภาพ */}
           <div className="form-section">
             <label>อัปโหลดรูปภาพ</label>
             <input
@@ -209,39 +175,23 @@ const Addrecipe = () => {
                   setRecipe((prev) => ({
                     ...prev,
                     image: file,
-                    image_url: URL.createObjectURL(file), // ✅ แสดงรูปตัวอย่าง
+                    image_url: URL.createObjectURL(file),
                   }));
                 }
               }}
             />
-            {/* ✅ แสดงภาพที่เคยอัปโหลด หรือภาพที่เลือกใหม่ */}
-            {recipe.image_url && (
-              <img
-                src={recipe.image_url}
-                alt="Preview"
-                className="recipe-preview"
-                style={{
-                  maxWidth: "600px",
-                  maxHeight: "350px",
-                  objectFit: "cover",
-                }}
-              />
-            )}
+            {recipe.image_url && <img src={recipe.image_url} alt="Preview" className="recipe-preview" />}
           </div>
-  
-          {/* 📌 ชื่อสูตรอาหาร */}
+
           <div className="form-section">
             <label>ชื่อสูตรอาหาร</label>
             <input
               type="text"
               value={recipe.recipe_name}
-              onChange={(e) =>
-                setRecipe({ ...recipe, recipe_name: e.target.value })
-              }
+              onChange={(e) => setRecipe({ ...recipe, recipe_name: e.target.value })}
             />
           </div>
-  
-          {/* 📌 วัตถุดิบ */}
+
           <div className="form-section">
             <h3>วัตถุดิบ</h3>
             <div className="form-grid">
@@ -256,26 +206,14 @@ const Addrecipe = () => {
               </div>
               <div className="form-group">
                 <label>ปริมาณ</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={quantity}
-                  onChange={handleQuantityChange}
-                />
+                <input type="number" min="0" value={quantity} onChange={handleQuantityChange} />
               </div>
-  
-              {/* 📌 เพิ่มวัตถุดิบ */}
-              <button
-                type="button"
-                className="btn add-btn"
-                onClick={addIngredient}
-              >
+              <button type="button" className="btn add-btn" onClick={addIngredient}>
                 เพิ่มวัตถุดิบ
               </button>
             </div>
           </div>
-  
-          {/* 📌 แสดงรายการวัตถุดิบที่เพิ่มแล้ว */}
+
           {ingredients.length > 0 && (
             <div className="ingredient-list">
               <h4>รายการวัตถุดิบที่เพิ่มแล้ว</h4>
@@ -291,19 +229,11 @@ const Addrecipe = () => {
                 <tbody>
                   {ingredients.map((ing, index) => (
                     <tr key={index}>
-                      <td>{ing.name || "-"}</td>
-                      <td>{ing.quantity || 0}</td>
-                      <td>{ing.unit || "กรัม"}</td>
+                      <td>{ing.name}</td>
+                      <td>{ing.quantity}</td>
+                      <td>{ing.unit}</td>
                       <td>
-                        <button
-                          type="button"
-                          className="btn delete-btn"
-                          onClick={() =>
-                            setIngredients(
-                              ingredients.filter((_, i) => i !== index)
-                            )
-                          }
-                        >
+                        <button type="button" className="btn delete-btn" onClick={() => setIngredients(ingredients.filter((_, i) => i !== index))}>
                           ลบ
                         </button>
                       </td>
@@ -313,21 +243,12 @@ const Addrecipe = () => {
               </table>
             </div>
           )}
-  
-          {/* 📌 ปุ่มกดบันทึก / ยกเลิก */}
+
           <div className="form-buttons">
-            <button
-              type="button"
-              className="btn cancel-btn"
-              onClick={() => navigate("/recipe")}
-            >
+            <button type="button" className="btn cancel-btn" onClick={() => navigate("/recipe")}>
               ยกเลิก
             </button>
-            <button
-              type="button"
-              className="btn save-btn"
-              onClick={submitRecipe}
-            >
+            <button type="button" className="btn save-btn" onClick={submitRecipe}>
               ยืนยัน
             </button>
           </div>
@@ -335,6 +256,6 @@ const Addrecipe = () => {
       </div>
     </div>
   );
-};  
+};
 
 export default Addrecipe;

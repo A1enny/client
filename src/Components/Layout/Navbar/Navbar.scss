@@ -1,9 +1,9 @@
 .navbar-container {
-  position: fixed; /* ทำให้ Navbar อยู่ด้านบนตลอด */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000; /* ทำให้แสดงอยู่ด้านบนสุด */
+  z-index: 1000;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -18,43 +18,115 @@
 
     .icon {
       color: #fff;
-      margin-left: 10px;
+      margin-left: 15px;
       cursor: pointer;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
     }
 
+    /* 📌 Notification Dropdown */
+    .notification-container {
+      position: relative;
+      cursor: pointer;
+
+      .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: red;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 3px 6px;
+        border-radius: 50%;
+      }
+
+      .notification-dropdown {
+        position: absolute;
+        top: 35px;
+        right: 0;
+        background: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        width: 280px;
+        border-radius: 8px;
+        padding: 10px;
+        z-index: 10;
+        animation: fadeIn 0.3s ease-in-out;
+
+        h4 {
+          margin: 0;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #ddd;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .notification-item {
+          padding: 10px;
+          border-bottom: 1px solid #eee;
+          cursor: pointer;
+          transition: background 0.3s ease;
+          
+          &:hover {
+            background: #f7f7f7;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+
+        p {
+          text-align: center;
+          padding: 10px;
+          color: gray;
+        }
+      }
+    }
+
+    /* 📌 User Dropdown */
     .user-dropdown {
       display: flex;
       align-items: center;
       position: relative;
+      cursor: pointer;
 
-      .profile-pic{
-        width: 30px;
-        height:  30px;
+      .profile-pic {
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
       }
+
       .user-name {
         color: #fff;
-        margin-left: 5px;
+        margin-left: 10px;
         font-size: 16px;
-      }
-
-      .dropdown-toggle {
-        transition: transform 0.2s ease;
+        font-weight: bold;
       }
 
       .dropdown-menu {
         position: absolute;
-        top: 35px;
+        top: 40px;
         right: 0;
-        background-color: #fff;
+        background-color: white;
         border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         overflow: hidden;
         z-index: 1000;
+        animation: fadeIn 0.3s ease-in-out;
 
         a {
           display: block;
-          padding: 10px 20px;
+          padding: 12px 20px;
           color: #333;
           text-decoration: none;
           transition: background 0.3s ease;
@@ -68,22 +140,38 @@
   }
 }
 
-/* ปรับระยะห่างสำหรับ Dashboard Content เมื่อ Navbar อยู่ด้านบน */
+/* 📌 ปรับระยะห่างของ Dashboard เมื่อ Navbar อยู่ด้านบน */
 .dashboard-container {
-  padding-top: 60px; /* เพิ่มพื้นที่ด้านบนให้ Content ไม่ชนกับ Navbar */
+  padding-top: 70px;
 }
 
-/* Media Query สำหรับหน้าจอเล็ก */
+/* 📌 Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📌 Responsive Design */
 @media screen and (max-width: 768px) {
   .navbar-container {
     padding: 10px 15px;
   }
 
   .user-dropdown .user-name {
-    display: none; /* ซ่อนชื่อผู้ใช้ในหน้าจอเล็ก */
+    display: none;
   }
 
   .icon {
-    margin-left: 5px;
+    margin-left: 8px;
+  }
+
+  .notification-dropdown {
+    width: 220px;
   }
 }
