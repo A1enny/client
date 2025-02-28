@@ -1,163 +1,102 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import axios from "../../../Api/axios";
-import socket from "../../../Api/socket";
 import Swal from "sweetalert2";
 import "./Orderpage.scss";
 
-const OrderPage = () => {
-  const { table_id } = useParams(); // ดึงค่า table_id จาก URL
+const API_URL = import.meta.env.VITE_API_URL;
+
+const Order = () => {
+  const { tableId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isGuest = searchParams.get("guest") === "true";
+
   const [menu, setMenu] = useState([]);
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 📌 โหลดเมนูอาหารจาก API
   useEffect(() => {
-    axios
-      .get("http://192.168.1.43:3002/api/menus")
-      .then((response) => {
-        console.log("📡 เมนูที่ได้รับจาก API:", response.data);
+    const fetchMenu = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/menus`);
         setMenu(response.data);
-      })
-      .catch((error) => {
-        console.error("❌ เกิดข้อผิดพลาดในการดึงเมนู:", error);
-      });
+      } catch (error) {
+        console.error("❌ ไม่สามารถดึงเมนูได้:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenu();
   }, []);
 
-  // 📌 เพิ่มเมนูลงในตะกร้า
   const addToCart = (item) => {
-    if (!item.id) {
-      console.error("❌ menu_id เป็น undefined:", item);
-      return;
-    }
-
     setCart((prevCart) => {
-      const existingItem = prevCart.find((i) => i.menu_id === item.id);
+      const existingItem = prevCart.find((i) => i.menu_id === item.menu_id);
       if (existingItem) {
         return prevCart.map((i) =>
-          i.menu_id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.menu_id === item.menu_id ? { ...i, quantity: i.quantity + 1 } : i
         );
       } else {
-        return [...prevCart, { ...item, quantity: 1, menu_id: item.id }];
+        return [...prevCart, { ...item, quantity: 1 }];
       }
     });
   };
 
-  // 📌 สั่งอาหาร
-  const placeOrder = async () => {
-    if (!table_id) {
-      Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่พบหมายเลขโต๊ะ กรุณาลองใหม่", "error");
-      return;
-    }
-
+  const handleOrder = async () => {
     if (cart.length === 0) {
-      Swal.fire("🛒 ตะกร้าว่างเปล่า", "กรุณาเลือกสินค้า", "warning");
+      Swal.fire("⚠️ ตะกร้าว่างเปล่า", "กรุณาเลือกเมนูก่อนสั่งซื้อ", "warning");
       return;
     }
 
     try {
-      const session_id = `session-${table_id}-${Date.now()}`;
-      const ordersPayload = cart.map((item) => ({
-        menu_id: item.menu_id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      console.log("📡 ข้อมูลที่ส่งไป Backend:", {
-        table_id,
-        session_id,
-        orders: ordersPayload,
+      await axios.post(`${API_URL}/api/orders`, {
+        table_id: tableId,
+        items: cart.map(({ menu_id, quantity }) => ({ menu_id, quantity })),
       });
 
-      const response = await axios.post(
-        "http://192.168.1.43:3002/api/orders/bulk",
-        {
-          table_id,
-          session_id,
-          orders: ordersPayload,
-        }
-      );
-
-      if (response.data.success) {
-        // แจ้งเตือน WebSocket
-        socket.emit("new_order", response.data);
-
-        Swal.fire("✅ สั่งซื้อสำเร็จ", "ออเดอร์ของคุณถูกส่งแล้ว", "success").then(
-          () => setCart([]) // ล้างตะกร้า
-        );
-      } else {
-        throw new Error(response.data.message || "เกิดข้อผิดพลาดไม่ทราบสาเหตุ");
-      }
+      Swal.fire("✅ สั่งซื้อสำเร็จ!", "คำสั่งซื้อของคุณถูกส่งแล้ว", "success");
+      setCart([]); // เคลียร์ตะกร้าหลังจากสั่งซื้อ
     } catch (error) {
-      console.error("❌ Error placing order:", error.response?.data || error.message);
-      Swal.fire("❌ เกิดข้อผิดพลาด", error.response?.data?.message || "ไม่สามารถสั่งซื้อได้", "error");
+      console.error("❌ สั่งซื้อผิดพลาด:", error);
+      Swal.fire("❌ ไม่สามารถสั่งซื้อได้", "กรุณาลองใหม่", "error");
     }
   };
 
-  // 📌 อัปเดตจำนวนสินค้าในตะกร้า
-  const updateQuantity = (menu_id, quantity) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.menu_id === menu_id
-          ? { ...item, quantity: Math.max(1, quantity) }
-          : item
-      )
-    );
-  };
-
   return (
-    <div className="order-page">
-      <h2>📦 รายการออเดอร์สำหรับโต๊ะ {table_id}</h2>
-      <h3>📜 เมนูอาหาร</h3>
-      <div className="menu-list">
-        {menu.length > 0 ? (
-          menu.map((item) => (
-            <div key={item.id} className="menu-item">
-              <img
-                src={item.image}
-                alt={item.name}
-                onError={(e) => (e.target.src = "fallback-image.png")}
-              />
-              <h3>{item.name}</h3>
-              <p>{Number(item.price).toFixed(2)} บาท</p>
-              <button onClick={() => addToCart(item)}>🛒 เพิ่มลงตะกร้า</button>
-            </div>
-          ))
-        ) : (
-          <p>📌 ไม่มีเมนูอาหารที่พร้อมให้บริการ</p>
-        )}
-      </div>
+    <div className="order-container">
+      <h1>📋 เมนูอาหาร - โต๊ะ {tableId}</h1>
+      <p>{isGuest ? "🔓 สั่งอาหารโดยไม่ต้องล็อกอิน" : "🔐 ต้องล็อกอินก่อนสั่งอาหาร"}</p>
 
-      <h3 className="bucket">🛍️ ตะกร้าสินค้า</h3>
+      {loading ? (
+        <p>⏳ กำลังโหลดเมนู...</p>
+      ) : (
+        <div className="menu-list">
+          {menu.map((item) => (
+            <div key={item.menu_id} className="menu-item">
+              <h3>{item.menu_name}</h3>
+              <p>💰 ราคา: {item.price} บาท</p>
+              <button onClick={() => addToCart(item)}>➕ เพิ่มลงตะกร้า</button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="cart">
+        <h2>🛒 ตะกร้าของคุณ</h2>
         {cart.length > 0 ? (
           cart.map((item) => (
-            <div key={item.menu_id} className="cart-item">
-              <h3>{item.name}</h3>
-              <p>{Number(item.price).toFixed(2)} บาท</p>
-              <div className="quantity-controls">
-                <button onClick={() => updateQuantity(item.menu_id, item.quantity + 1)}>
-                  ➕
-                </button>
-                <span>{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.menu_id, item.quantity - 1)}>
-                  ➖
-                </button>
-              </div>
-              <button onClick={() => setCart(cart.filter((i) => i.menu_id !== item.menu_id))}>
-                ❌ ลบ
-              </button>
-            </div>
+            <p key={item.menu_id}>
+              {item.menu_name} x {item.quantity}
+            </p>
           ))
         ) : (
           <p>🛒 ตะกร้าว่างเปล่า</p>
         )}
+        <button onClick={handleOrder}>🛒 สั่งอาหาร</button>
       </div>
-
-      <button onClick={placeOrder} className="place-order" disabled={cart.length === 0}>
-        {cart.length > 0 ? "✅ สั่งรายการ" : "🛒 เพิ่มสินค้าเพื่อสั่งซื้อ"}
-      </button>
     </div>
   );
 };
 
-export default OrderPage;
+export default Order;

@@ -34,7 +34,6 @@ const AddInventory = () => {
   const handleAddIngredient = async (e) => {
     e.preventDefault();
   
-    // 📌 ตรวจสอบว่าข้อมูลถูกกรอกครบถ้วน
     if (!ingredientName.trim() || !categoryId || !quantity || !receivedDate) {
       Swal.fire({
         icon: "warning",
@@ -44,48 +43,32 @@ const AddInventory = () => {
       return;
     }
   
-    const quantityInGrams = parseFloat(quantity);
-    if (isNaN(quantityInGrams) || quantityInGrams <= 0) {
-      Swal.fire({
-        icon: "error",
-        title: "🚫 ปริมาณไม่ถูกต้อง",
-        text: "ปริมาณต้องเป็นตัวเลขที่มากกว่า 0!",
-      });
-      return;
-    }
-  
-    // 📌 ถ้าผู้ใช้ไม่ได้กรอกวันหมดอายุ ให้ใช้ `null`
     const expirationValue = expirationDate?.trim() ? expirationDate : null;
   
     setLoading(true);
     try {
-      // ✅ ตรวจสอบว่าวัตถุดิบนี้มีอยู่แล้วหรือไม่
-      const response = await axios.get(`/api/materials`, {
-        params: { search: ingredientName },
+      console.log("📌 Data before sending:", {
+        name: ingredientName,
+        category_id: parseInt(categoryId, 10),
+        unit_id: 1,
+        stock: parseFloat(quantity),
+        received_date: receivedDate, // ✅ เพิ่มวันที่รับเข้า
+        expiration_date: expirationValue, // ✅ เพิ่มวันหมดอายุ
+        status: "ปกติ",
       });
   
-      let materialId;
-      if (response.data && response.data.results.length > 0) {
-        materialId = response.data.results[0].material_id;
-      } else {
-        // ✅ ถ้ายังไม่มี ให้เพิ่มวัตถุดิบใหม่
-        const newMaterialResponse = await axios.post("/api/materials", {
-          name: ingredientName,
-          category_id: parseInt(categoryId, 10),
-          unit_id: 1,
-        });
-        materialId = newMaterialResponse.data.material_id;
-      }
-  
-      // ✅ ส่งข้อมูลล็อตวัตถุดิบ
-      await axios.post("/api/inventory-batches", {
-        material_id: materialId,
-        quantity: quantityInGrams,
+      const response = await axios.post("/api/materials", {
+        name: ingredientName,
+        category_id: parseInt(categoryId, 10),
+        unit_id: 1,
+        stock: parseFloat(quantity),
         received_date: receivedDate,
-        expiration_date: expirationValue, // ✅ ถ้าไม่มีค่า ให้ส่ง `null`
+        expiration_date: expirationValue,
+        status: "ปกติ",
       });
   
-      // ✅ แจ้งเตือนว่าเพิ่มข้อมูลสำเร็จ
+      console.log("✅ API Response:", response.data);
+  
       Swal.fire({
         icon: "success",
         title: "🎉 เพิ่มวัตถุดิบสำเร็จ!",
@@ -93,7 +76,6 @@ const AddInventory = () => {
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
-        // ✅ รีเซ็ตค่าฟอร์ม
         setIngredientName("");
         setCategoryId("");
         setQuantity("");
@@ -104,8 +86,7 @@ const AddInventory = () => {
   
     } catch (error) {
       console.error("❌ Error adding ingredient:", error.response?.data || error.message);
-      
-      // ✅ แสดง error message ที่ชัดเจนขึ้น
+  
       Swal.fire({
         icon: "error",
         title: "❌ เกิดข้อผิดพลาด",
@@ -114,9 +95,8 @@ const AddInventory = () => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
   
-
   return (
     <div className="add-inventory-container">
       <Navbar />

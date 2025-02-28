@@ -1,36 +1,30 @@
-$primaryColor: #007bff; // สีน้ำเงินหลัก
-$hoverColor: #0056b3; // สีโฮเวอร์ของปุ่มหลัก
-$successColor: #28a745; // สีปุ่มสำเร็จ (เช่น ใช้งานได้)
-$errorColor: #dc3545; // สีปุ่มลบ (เช่น ลบโต๊ะ)
-$bgColor: #f8f9fa; // สีพื้นหลัง
-$cardColor: #ffffff; // สีของการ์ดตาราง
-$buttonRadius: 6px; // มุมโค้งของปุ่ม
-$tablePadding: 14px; // ระยะห่างภายในตาราง
-$shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
-
+// ✅ Container หลัก
 .Table-container {
   margin-top: 3.8rem;
   display: flex;
   flex-direction: row;
-  background-color: $bgColor;
+  background-color: #f8f9fa; // Light Mode พื้นหลัง
   min-height: 100vh;
   padding: 20px;
+  transition: background 0.3s;
 }
 
+// ✅ Sidebar แบบ Responsive
 .sidebar.collapsed ~ .Table-content {
   margin-left: 75px;
   margin-right: 10px;
 }
 
+// ✅ เนื้อหาหลักของหน้า
 .Table-content {
   flex: 1;
   padding: 20px;
   margin-right: 10px;
   margin-left: 250px;
-  transition: margin-left 0.3s ease-in-out;
-  background-color: #fff;
+  transition: margin-left 0.3s;
+  background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: $shadow;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
   h1 {
     font-size: 28px;
@@ -40,7 +34,7 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
   }
 }
 
-/* 🔹 ส่วนค้นหาและกรอง */
+// ✅ ส่วนค้นหาและกรอง
 .Table-filters {
   display: flex;
   gap: 15px;
@@ -48,52 +42,50 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
   align-items: center;
   padding: 10px;
   border-radius: 8px;
-  background-color: $cardColor;
-  box-shadow: $shadow;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
-  .filter-dropdown,
-  .search-input {
+  input,
+  select {
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: $buttonRadius;
+    border-radius: 6px;
     font-size: 14px;
     background-color: #fff;
     transition: all 0.2s ease-in-out;
 
     &:focus {
-      border-color: $primaryColor;
+      border-color: #007bff;
       box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
     }
   }
 
-  .search-button {
-    padding: 10px 15px;
-    font-size: 14px;
-    border: none;
-    border-radius: $buttonRadius;
-    cursor: pointer;
-    background-color: $primaryColor;
+  button {
+    background-color: #007bff;
     color: #fff;
-    transition: all 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
 
     &:hover {
-      background-color: $hoverColor;
+      background-color: #0056b3;
     }
   }
 }
 
-/* 🔹 ตารางแสดงข้อมูล */
+// ✅ ตารางแสดงข้อมูล
 .Table-data {
   width: 100%;
   border-collapse: collapse;
-  background-color: $cardColor;
+  background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: $shadow;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   margin-top: 20px;
 
   thead {
-    background-color: $primaryColor;
+    background-color: #007bff;
     color: #fff;
 
     th {
@@ -107,14 +99,14 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
   tbody {
     tr {
       border-bottom: 1px solid #ddd;
-      transition: background 0.2s;
+      transition: background 0.3s;
 
       &:hover {
         background-color: #f1f1f1;
       }
 
       td {
-        padding: $tablePadding;
+        padding: 14px;
         font-size: 14px;
         text-align: center;
 
@@ -124,45 +116,42 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
           gap: 15px;
         }
 
-        /* 🔹 ปุ่มใช้งาน */
         .start-btn {
-          background-color: $successColor;
+          background-color: #28a745;
           color: #fff;
           padding: 8px 12px;
-          border-radius: $buttonRadius;
+          border-radius: 6px;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: background 0.3s;
 
           &:hover {
-            background-color: darken($successColor, 10%);
+            background-color: #218838;
           }
-        }
-
-        /* 🔹 ปุ่มจัดการ (แก้ไข / ลบ) */
-        .details-button,
-        .delete-button {
-          padding: 8px 12px;
-          font-size: 14px;
-          border-radius: $buttonRadius;
-          cursor: pointer;
-          transition: background 0.2s;
         }
 
         .details-button {
-          background-color: $primaryColor;
+          background-color: #007bff;
           color: #fff;
+          padding: 8px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background 0.3s;
 
           &:hover {
-            background-color: $hoverColor;
+            background-color: #0056b3;
           }
         }
 
         .delete-button {
-          background-color: $errorColor;
+          background-color: #dc3545;
           color: #fff;
+          padding: 8px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background 0.3s;
 
           &:hover {
-            background-color: darken($errorColor, 10%);
+            background-color: #c82333;
           }
         }
       }
@@ -170,7 +159,7 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
   }
 }
 
-/* 🔹 ปุ่มเพิ่มโต๊ะ */
+// ✅ ปุ่มเพิ่มโต๊ะ
 .add-table-btn-container {
   display: flex;
   justify-content: flex-end;
@@ -179,20 +168,91 @@ $shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // เงาสำหรับ UI
   .add-table-btn {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: $primaryColor;
+    background-color: #007bff;
     color: #fff;
     border: none;
-    border-radius: $buttonRadius;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background 0.3s;
 
     &:hover {
-      background-color: $hoverColor;
+      background-color: #0056b3;
     }
   }
 }
 
-/* 🔹 ทำให้ Responsive */
+// ✅ Modal แบบ Responsive
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s;
+
+  .modal-content {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+
+      button {
+        padding: 10px;
+        flex: 1;
+        margin: 5px;
+      }
+
+      .confirm {
+        background-color: #28a745;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background-color: #218838;
+        }
+      }
+
+      .cancel {
+        background-color: #dc3545;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background-color: #c82333;
+        }
+      }
+    }
+  }
+}
+
+// ✅ ทำให้ Responsive
 @media (max-width: 768px) {
   .Table-container {
     flex-direction: column;

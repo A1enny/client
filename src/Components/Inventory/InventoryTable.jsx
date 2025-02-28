@@ -1,92 +1,69 @@
-import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
+import React from "react";
 import "./InventoryTable.scss";
 
-const InventoryTable = ({ data, type, handleDelete, handleDetail }) => {
-  const getStatus = (expirationDate) => {
-    if (!expirationDate || expirationDate === "N/A") return "ปกติ";
-    const today = new Date();
-    const expDate = new Date(expirationDate);
-    const diffDays = (expDate - today) / (1000 * 60 * 60 * 24);
-
-    if (diffDays < 0) return "หมดอายุแล้ว";
-    if (diffDays <= 7) return "ใกล้หมดอายุ";
-    return "ปกติ";
-  };
-
-  const getStatusColor = (status) => {
-    if (status === "ปกติ") return "🟢";
-    if (status === "ใกล้หมดอายุ") return "🟡";
-    return "🔴";
-  };
-
+const InventoryTable = ({ data, onEditIngredient, onDeleteIngredient }) => {
   return (
-    <table className="inventory-table">
-      <thead>
-        <tr>
-          <th>📑 {type === "batches" ? "รหัสล็อต" : "รหัสวัตถุดิบ"}</th>
-          <th>📌 ชื่อวัตถุดิบ</th>
-          <th>📦 หมวดหมู่</th>
-          <th>📅 วันที่รับเข้า</th>
-          <th>📊 ใช้ไปแล้ว / ทั้งหมด</th>
-          <th>⏳ วันที่หมดอายุ</th>
-          <th>🟢 สถานะ</th>
-          <th>⚙️ จัดการ</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.length > 0 ? (
-          data.map((item) => {
-            const status = getStatus(item.expiration_date);
-            const percentageUsed =
-              item.quantity && item.quantity > 0
-                ? ((item.used_quantity / item.quantity) * 100).toFixed(0) + "%"
-                : "0%";
+    <div className="inventory-table">
+      <table>
+        <thead>
+          <tr>
+            <th>📑 รหัสวัตถุดิบ</th>
+            <th>📌 ชื่อวัตถุดิบ</th>
+            <th>📦 หมวดหมู่</th>
+            <th>📅 วันที่รับเข้า</th>
+            <th>📊 ทั้งหมด</th>
+            <th>⏳ วันที่หมดอายุ</th>
+            <th>🟢 สถานะ</th>
+            <th>⚙️ จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => {
+            console.log(`📝 รายการที่ ${index + 1}:`, item); // ✅ ตรวจสอบข้อมูลแต่ละแถว
+
+            const receivedDate =
+              item.received_date && item.received_date !== "N/A"
+                ? new Date(item.received_date).toLocaleDateString("th-TH")
+                : "N/A";
+
+            const expirationDate =
+              item.expiration_date && item.expiration_date !== "N/A"
+                ? new Date(item.expiration_date).toLocaleDateString("th-TH")
+                : "N/A";
 
             return (
-              <tr key={item.batch_id || item.material_id}>
-                <td>{type === "batches" ? item.batch_id : item.material_id}</td>
-                <td>{item.material_name}</td>
-                <td>{item.category_name || "ไม่ระบุหมวดหมู่"}</td>
-                <td>{item.received_date || "N/A"}</td>
+              <tr key={index}>
+                <td>{item.material_id}</td>
+                <td>{item.material_name || "ไม่ระบุ"}</td>
+                <td>{item.category_name || "ไม่ระบุ"}</td>
+                <td>{receivedDate}</td>
+                <td>{`${item.total_quantity || 0} g`}</td>
+                <td>{expirationDate}</td>
                 <td>
-                  {item.used_quantity || 0}g / {item.quantity}g{" "}
-                  <span className={`progress ${status}`}>
-                    ({percentageUsed})
+                  <span className={`status ${item.status}`}>
+                    {item.status || "N/A"}
                   </span>
                 </td>
-                <td>{item.expiration_date || "N/A"}</td>
-                <td style={{ fontWeight: "bold" }}>
-                  {getStatusColor(status)} {status}
-                </td>
                 <td>
-                  <button className="edit-btn">
-                    <FaEdit /> แก้ไข
+                  <button
+                    className="edit-btn"
+                    onClick={() => onEditIngredient(item)}
+                  >
+                    ✏️ แก้ไข
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDelete(item)} // ส่งข้อมูลที่ถูกต้องไป
+                    onClick={() => onDeleteIngredient(item.material_id)}
                   >
-                    <FaTrash /> ลบ
-                  </button>
-                  <button
-                    className="detail-btn"
-                    onClick={() => handleDetail(item)}
-                  >
-                    <FaInfoCircle /> รายละเอียด
+                    🗑 ลบ
                   </button>
                 </td>
               </tr>
             );
-          })
-        ) : (
-          <tr>
-            <td colSpan="8" style={{ textAlign: "center" }}>
-              ไม่มีข้อมูล
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

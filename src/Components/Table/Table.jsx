@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/axios";
 import Swal from "sweetalert2";
@@ -7,22 +7,23 @@ import Sidebar from "../Layout/Sidebar/Sidebar";
 import Navbar from "../Layout/Navbar/Navbar";
 import "./Table.scss";
 
-const API_URL = import.meta.env.VITE_API_URL; // ✅ ใช้ค่าจาก .env
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Table = () => {
   const [tables, setTables] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTable, setNewTable] = useState({
-    table_number: "",
-    seats: "",
-  });
-  const navigate = useNavigate(); // ✅ ใช้สำหรับเปลี่ยนหน้า
+  const [newTable, setNewTable] = useState({ table_number: "", seats: "" });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const searchTimeout = useRef(null);
 
+  // ✅ ดึงข้อมูลโต๊ะจาก API
   const fetchTables = async () => {
+    setLoading(true);
     try {
-      let url = `${API_URL}/api/tables`; // ✅ ใช้ API_URL แทนฮาร์ดโค้ด
+      let url = `${API_URL}/api/tables`;
       const queryParams = [];
       if (search) queryParams.push(`search=${encodeURIComponent(search)}`);
       if (statusFilter)
@@ -33,20 +34,41 @@ const Table = () => {
       setTables(response.data);
     } catch (error) {
       console.error("❌ ดึงข้อมูลโต๊ะผิดพลาด:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTables();
+    // ✅ ใช้ debounce เพื่อลด API calls
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      fetchTables();
+    }, 500);
   }, [search, statusFilter]);
 
   useEffect(() => {
+    // ✅ EventSource สำหรับอัปเดตแบบ real-time
     const eventSource = new EventSource(`${API_URL}/api/tables/updates`);
-    eventSource.onmessage = (event) => setTables(JSON.parse(event.data));
-    return () => eventSource.close();
+    eventSource.onmessage = (event) => {
+      setTables(JSON.parse(event.data));
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
-  const handleAction = async (url, successMessage) => {
+  // ✅ ใช้การอัปเดต state แทนการ fetch ใหม่หลังจากเปลี่ยนสถานะ
+  const updateTableStatus = (tableId, newStatus) => {
+    setTables((prevTables) =>
+      prevTables.map((table) =>
+        table.table_id === tableId ? { ...table, status: newStatus } : table
+      )
+    );
+  };
+
+  const handleAction = async (url, successMessage, tableId, newStatus) => {
     try {
       await axios.put(url);
       Swal.fire({
@@ -56,7 +78,7 @@ const Table = () => {
         timer: 1500,
         showConfirmButton: false,
       });
-      fetchTables();
+      updateTableStatus(tableId, newStatus);
     } catch (error) {
       console.error("❌ Error:", error.response?.data || error.message);
       Swal.fire("❌ ไม่สามารถดำเนินการได้", "กรุณาลองใหม่", "error");
@@ -69,15 +91,21 @@ const Table = () => {
       return;
     }
 
+    // ✅ ป้องกันการเพิ่มหมายเลขโต๊ะซ้ำ
+    if (tables.some((t) => t.table_number === newTable.table_number)) {
+      Swal.fire("❌ หมายเลขโต๊ะนี้มีอยู่แล้ว!", "", "error");
+      return;
+    }
+
     try {
-      await axios.post(`${API_URL}/api/tables`, {
+      const response = await axios.post(`${API_URL}/api/tables`, {
         ...newTable,
-        status: "available", // ✅ กำหนดค่า default
+        status: "available",
       });
 
       Swal.fire("✅ เพิ่มโต๊ะสำเร็จ!", "", "success");
       setIsModalOpen(false);
-      fetchTables();
+      setTables((prev) => [...prev, response.data]); // ✅ อัปเดต state ทันที
     } catch (error) {
       console.error("❌ Error:", error);
       Swal.fire("❌ ไม่สามารถเพิ่มโต๊ะได้", "กรุณาลองใหม่", "error");
@@ -91,7 +119,6 @@ const Table = () => {
       <div className="Table-content">
         <h1>จัดการโต๊ะอาหาร</h1>
 
-        {/* ปุ่มเพิ่มโต๊ะ */}
         <button className="add-table-btn" onClick={() => setIsModalOpen(true)}>
           ➕ เพิ่มโต๊ะ
         </button>
@@ -113,116 +140,117 @@ const Table = () => {
           </select>
         </div>
 
-        <table className="Table-data">
-          <thead>
-            <tr>
-              <th>หมายเลขโต๊ะ</th>
-              <th>จำนวนที่นั่ง</th>
-              <th>สถานะ</th>
-              <th>QR Code</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tables.map((table) => (
-              <tr key={table.table_id}>
-                <td>{table.table_number}</td>
-                <td>{table.seats}</td>
-                <td>
-                  <span className={`status ${table.status}`}>
-                    {table.status}
-                  </span>
-                </td>
-                <td>
-                  <QRCodeCanvas
-                    value={`${API_URL}/order/${table.table_id}?guest=true`} // ✅ ใช้ API_URL
-                    size={100}
-                  />
-                </td>
-                <td>
-                  <div className="button-group">
-                    {table.status === "available" && (
-                      <button
-                        className="start-btn"
-                        onClick={() =>
-                          handleAction(
-                            `${API_URL}/api/tables/${table.table_id}/start`,
-                            "โต๊ะถูกใช้งานแล้ว"
-                          )
-                        }
-                      >
-                        ▶ เริ่มใช้งาน
-                      </button>
-                    )}
-                    {table.status === "in-use" && (
-                      <button
-                        className="reset-btn"
-                        onClick={() =>
-                          handleAction(
-                            `${API_URL}/api/tables/${table.table_id}/reset`,
-                            "โต๊ะกลับมาใช้งานได้แล้ว"
-                          )
-                        }
-                      >
-                        🔄 คืนโต๊ะ
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        console.log(
-                          "📌 Navigating to:",
-                          `/table-details/${table.table_id}`
-                        );
-                        navigate(`/table-details/${table.table_id}`);
-                      }}
-                    >
-                      ℹ️ ดูรายละเอียด
-                    </button>
-
-                    <button
-                      className="delete-button"
-                      onClick={() =>
-                        handleAction(
-                          `${API_URL}/api/tables/${table.table_id}/delete`,
-                          "โต๊ะถูกลบแล้ว"
-                        )
-                      }
-                    >
-                      🗑 ลบ
-                    </button>
-                  </div>
-                </td>
+        {loading ? (
+          <p>⏳ กำลังโหลดข้อมูล...</p>
+        ) : (
+          <table className="Table-data">
+            <thead>
+              <tr>
+                <th>หมายเลขโต๊ะ</th>
+                <th>จำนวนที่นั่ง</th>
+                <th>สถานะ</th>
+                <th>QR Code</th>
+                <th>จัดการ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tables.map((table) => (
+                <tr key={table.table_id}>
+                  <td>{table.table_number}</td>
+                  <td>{table.seats}</td>
+                  <td>
+                    <span className={`status ${table.status}`}>
+                      {table.status}
+                    </span>
+                  </td>
+                  <td>
+                    <QRCodeCanvas
+                      value={`${window.location.origin}/order/${table.table_id}?guest=true`}
+                      size={100}
+                    />
+                  </td>
+                  <td>
+                    <div className="button-group">
+                      {table.status === "available" && (
+                        <button
+                          className="start-btn"
+                          onClick={() =>
+                            handleAction(
+                              `${API_URL}/api/tables/${table.table_id}/start`,
+                              "โต๊ะถูกใช้งานแล้ว",
+                              table.table_id,
+                              "in-use"
+                            )
+                          }
+                        >
+                          ▶ เริ่มใช้งาน
+                        </button>
+                      )}
+                      {table.status === "in-use" && (
+                        <button
+                          className="reset-btn"
+                          onClick={() =>
+                            handleAction(
+                              `${API_URL}/api/tables/${table.table_id}/reset`,
+                              "โต๊ะกลับมาใช้งานได้แล้ว",
+                              table.table_id,
+                              "available"
+                            )
+                          }
+                        >
+                          🔄 คืนโต๊ะ
+                        </button>
+                      )}
+                      <button
+                        onClick={() =>
+                          navigate(`/table-details/${table.table_id}`)
+                        }
+                      >
+                        ℹ️ ดูรายละเอียด
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() =>
+                          handleAction(
+                            `${API_URL}/api/tables/${table.table_id}/delete`,
+                            "โต๊ะถูกลบแล้ว",
+                            table.table_id
+                          )
+                        }
+                      >
+                        🗑 ลบ
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      {/* Modal ฟอร์มเพิ่มโต๊ะ */}
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
             <h2>➕ เพิ่มโต๊ะใหม่</h2>
-            <label>หมายเลขโต๊ะ:</label>
             <input
               type="text"
+              placeholder="หมายเลขโต๊ะ"
               value={newTable.table_number}
               onChange={(e) =>
                 setNewTable({ ...newTable, table_number: e.target.value })
               }
             />
-            <label>จำนวนที่นั่ง:</label>
             <input
               type="number"
+              placeholder="จำนวนที่นั่ง"
               value={newTable.seats}
               onChange={(e) =>
                 setNewTable({ ...newTable, seats: e.target.value })
               }
             />
-            <div className="modal-buttons">
-              <button onClick={handleAddTable}>✅ เพิ่มโต๊ะ</button>
-              <button onClick={() => setIsModalOpen(false)}>❌ ยกเลิก</button>
-            </div>
+            <button onClick={handleAddTable}>✅ เพิ่มโต๊ะ</button>
+            <button onClick={() => setIsModalOpen(false)}>❌ ยกเลิก</button>
           </div>
         </div>
       )}

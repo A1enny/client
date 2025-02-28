@@ -51,23 +51,25 @@ const EditIngredientModal = ({ material, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.material_name.trim() || !formData.category_id || parseFloat(formData.stock) <= 0) {
       Swal.fire("⚠ กรุณากรอกข้อมูลให้ถูกต้อง", "ชื่อวัตถุดิบต้องไม่ว่าง, เลือกหมวดหมู่ และจำนวนต้องมากกว่า 0", "warning");
       return;
     }
-
+  
     try {
       setLoading(true);
       await axios.put(`/api/materials/${formData.material_id}`, {
         name: formData.material_name.trim(),
         category_id: formData.category_id,
-        stock: parseFloat(formData.stock), // แปลงค่าให้แน่ใจว่าเป็นตัวเลข
+        stock: parseFloat(formData.stock),
+        received_date: formData.received_date || null, // ✅ เพิ่มฟิลด์นี้
+        expiration_date: formData.expiration_date || null, // ✅ เพิ่มฟิลด์นี้
       });
-
+  
       Swal.fire("✅ อัปเดตสำเร็จ!", "ข้อมูลวัตถุดิบถูกอัปเดตเรียบร้อย", "success");
-
-      if (onSave) onSave(); // ตรวจสอบว่ามีฟังก์ชันนี้จริงหรือไม่
+  
+      if (onSave) onSave(); 
       if (onClose) onClose();
     } catch (error) {
       console.error("❌ Error updating material:", error);
@@ -75,7 +77,7 @@ const EditIngredientModal = ({ material, onClose, onSave }) => {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div className="modal-overlay">

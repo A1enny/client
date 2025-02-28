@@ -49,7 +49,7 @@ function App() {
           {/* ✅ เปลี่ยน tableId → table_id */}
         </Route>
         {/* ✅ Route สำหรับ Order */}
-        <Route path="/order/:table_id" element={<OrderPage />} />
+        <Route path="/order/:tableId" element={<OrderPage />} />
       </Routes>
     </BrowserRouter>
   );

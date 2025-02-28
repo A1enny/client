@@ -9,9 +9,8 @@ import EditIngredientModal from "./Edit/EditIngredientModal";
 import InventoryTable from "./InventoryTable";
 
 const Inventory = () => {
-  const [activeTab, setActiveTab] = useState("batches"); // ค่าเริ่มต้นเป็นล็อตวัตถุดิบ
-  const [ingredients, setIngredients] = useState([]);
-  const [batches, setBatches] = useState([]);
+  const [activeTab, setActiveTab] = useState("normal"); // ค่าเริ่มต้นเป็นคลังวัตถุดิบ
+  const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -22,29 +21,24 @@ const Inventory = () => {
   const [selectedIngredient, setSelectedIngredient] = useState(null);
   const navigate = useNavigate();
 
+  // ✅ ฟังก์ชันดึงข้อมูลวัตถุดิบ
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         let response;
         const params = {
-          search: searchTerm,
-          category: selectedCategory,
           page: currentPage,
           limit: 10,
+          search: searchTerm || undefined,
+          category: selectedCategory || undefined,
         };
-
-        if (activeTab === "batches") {
-          await axios.get("/api/inventory-batches?page=" + currentPage + "&limit=10", { params });
-          setBatches(response.data.results || []);
-        } else if (activeTab === "expired") {
-          response = await axios.get("/api/materials/expired", { params });
-          setIngredients(response.data.results || []);
-        } else {
-          response = await axios.get("/api/materials", { params });
-          setIngredients(response.data.results || []);
-        }
-
+  
+        response = await axios.get("/api/materials", { params });
+  
+        console.log("📌 API Response:", response.data); // ✅ ตรวจสอบข้อมูลที่ได้จาก API
+  
+        setData(response.data.results || []);
         setTotalPages(response.data.totalPages || 1);
       } catch (error) {
         console.error("❌ Error fetching data:", error);
@@ -52,63 +46,16 @@ const Inventory = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
-  }, [activeTab, searchTerm, selectedCategory, currentPage]);
+  }, [searchTerm, selectedCategory, currentPage]);
+  
+  useEffect(() => {
+    console.log("🔍 ตรวจสอบข้อมูลที่ใช้แสดงผล: ", data);
+  }, [data]);
+  
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
-
-  const handleEditIngredient = (ingredient) => {
-    setSelectedIngredient(ingredient);
-    setEditModalOpen(true);
-  };
-
-  const handleDelete = async (item) => {
-    const id = activeTab === "batches" ? item.batch_id : item.material_id;
-    const apiEndpoint =
-      activeTab === "batches" ? "/api/inventory-batches" : "/api/materials";
-
-    if (!id) {
-      Swal.fire("❌ ลบไม่สำเร็จ", "ไม่พบรหัส", "error");
-      return;
-    }
-
-    const confirm = await Swal.fire({
-      title: `⚠ ลบข้อมูล?`,
-      text: "คุณแน่ใจหรือไม่? การลบนี้จะไม่สามารถกู้คืนได้",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "ลบ",
-      cancelButtonText: "ยกเลิก",
-    });
-
-    if (confirm.isConfirmed) {
-      try {
-        await axios.delete(`${apiEndpoint}/${id}`);
-        Swal.fire("✅ ลบสำเร็จ!", "ข้อมูลถูกลบออกจากระบบ", "success");
-
-        if (activeTab === "batches") {
-          setBatches((prev) => prev.filter((b) => b.batch_id !== id));
-        } else {
-          setIngredients((prev) => prev.filter((i) => i.material_id !== id));
-        }
-      } catch (error) {
-        Swal.fire("❌ ลบไม่สำเร็จ", "เกิดข้อผิดพลาด", "error");
-      }
-    }
-  };
-
-  const handleDetail = (item) => {
-    const id = activeTab === "batches" ? item.batch_id : item.material_id;
-    navigate(`/inventory/detail/${id}`);
-  };
-
+  // ✅ ฟังก์ชันดึงหมวดหมู่วัตถุดิบ
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -121,6 +68,45 @@ const Inventory = () => {
     fetchCategories();
   }, []);
 
+  // ✅ ฟังก์ชันเปิด/ปิด Modal แก้ไขวัตถุดิบ
+  const handleEditIngredient = (ingredient) => {
+    setSelectedIngredient(ingredient);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteIngredient = async (id) => {
+    if (!id) {
+      console.error("❌ ID is undefined!");
+      Swal.fire("❌ ลบไม่สำเร็จ", "ID ของวัตถุดิบไม่ถูกต้อง", "error");
+      return;
+    }
+  
+    const confirm = await Swal.fire({
+      title: "⚠ ลบวัตถุดิบ?",
+      text: "การลบนี้จะไม่สามารถกู้คืนได้ คุณต้องการดำเนินการต่อหรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+    });
+  
+    if (!confirm.isConfirmed) return;
+  
+    try {
+      // ✅ ลบวัตถุดิบโดยตรง
+      await axios.delete(`/api/materials/${id}`);
+      Swal.fire("✅ ลบสำเร็จ!", "วัตถุดิบถูกลบออกจากระบบ", "success");
+  
+      // 🔄 อัปเดต state
+      setData((prev) => prev.filter((item) => item.material_id !== id));
+    } catch (error) {
+      console.error("❌ Error deleting:", error);
+      Swal.fire("❌ ลบไม่สำเร็จ", error.response?.data?.error || "เกิดข้อผิดพลาด", "error");
+    }
+  };  
+  
   return (
     <div className="Inventory-container">
       <Navbar />
@@ -135,7 +121,6 @@ const Inventory = () => {
             + เพิ่มวัตถุดิบ
           </button>
         </div>
-
         {/* ตัวกรอง */}
         <div className="Inventory-filters">
           <select
@@ -164,10 +149,9 @@ const Inventory = () => {
             ล้างตัวกรอง
           </button>
         </div>
-
         {/* ปุ่มเลือกหมวดหมู่ */}
         <div className="tab-navigation">
-          {["batches", "normal", "expired"].map((tab) => (
+          {["normal", "expired", "batches"].map((tab) => (
             <button
               key={tab}
               className={activeTab === tab ? "active" : ""}
@@ -181,65 +165,29 @@ const Inventory = () => {
             </button>
           ))}
         </div>
-
         {/* แสดงข้อมูล */}
         {loading ? (
-          <p>กำลังโหลดข้อมูล...</p>
+          <div className="loading-container">
+            <p>🔄 กำลังโหลดข้อมูล...</p>
+          </div>
+        ) : data.length > 0 ? (
+          <InventoryTable
+            activeTab={activeTab}
+            data={data}
+            onEditIngredient={handleEditIngredient}
+            onDeleteIngredient={handleDeleteIngredient}
+          />
         ) : (
-          <>
-            <InventoryTable
-              data={activeTab === "batches" ? batches : ingredients}
-              type={activeTab}
-              handleEdit={handleEditIngredient}
-              handleDelete={handleDelete}
-              handleDetail={handleDetail}
-            />
-            {/* Pagination */}
-            <div className="pagination">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                {"<"} ก่อนหน้า
-              </button>
-              <span>
-                หน้า {currentPage} / {totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                ถัดไป {">"}
-              </button>
-            </div>
-          </>
+          <div className="no-data">
+            <p>❌ ไม่มีข้อมูล</p>
+          </div>
         )}
-
-        {/* Modal แก้ไขวัตถุดิบ */}
-        {editModalOpen && (
+        {editModalOpen && selectedIngredient && (
           <EditIngredientModal
             ingredient={selectedIngredient}
             onClose={() => setEditModalOpen(false)}
           />
         )}
-      </div>
-      <div className="pagination">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          {"<"} ก่อนหน้า
-        </button>
-        <span>
-          {" "}
-          หน้า {currentPage} / {totalPages}{" "}
-        </span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          ถัดไป {">"}
-        </button>
       </div>
     </div>
   );

@@ -1,79 +1,129 @@
 .inventory-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
 
-  th, td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    th {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 123, 255, 0.1);
+    }
   }
 
-  th {
-    background-color: #f4f4f4;
+  /* ✅ ปรับสีสถานะ */
+  .status {
     font-weight: bold;
-  }
-
-  .progress {
-    font-weight: bold;
-    padding: 5px;
+    padding: 6px 12px;
     border-radius: 5px;
-    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+
+    &.ปกติ {
+      background: rgba(0, 128, 0, 0.2);
+      color: green;
+    }
+
+    &.ใกล้หมดอายุ {
+      background: rgba(255, 165, 0, 0.2);
+      color: orange;
+    }
+
+    &.หมดอายุแล้ว {
+      background: rgba(255, 0, 0, 0.2);
+      color: red;
+    }
   }
 
-  .ใกล้หมดอายุ {
-    color: orange;
-  }
-
-  .หมดอายุแล้ว {
-    color: red;
-  }
-
-  .ปกติ {
-    color: green;
-  }
-
-  .edit-btn, .delete-btn, .detail-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+  /* ✅ ปรับแต่งปุ่มจัดการ */
+  .edit-btn, .delete-btn {
     padding: 6px 12px;
     margin: 2px;
     border: none;
     border-radius: 5px;
     font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
-    transition: 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   .edit-btn {
-    background: #ffc107;
-    color: #fff;
+    background: #ffca28;
+    color: #333;
+
+    &:hover {
+      background: #e0a800;
+      transform: scale(1.05);
+    }
   }
 
   .delete-btn {
-    background: #dc3545;
+    background: #e74c3c;
     color: #fff;
+
+    &:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
   }
 
-  .detail-btn {
-    background: #17a2b8;
-    color: #fff;
+  .status {
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 5px;
+    display: inline-block;
+    text-align: center;
   }
-
-  .edit-btn:hover {
-    background: #e0a800;
+  
+  .status.ปกติ {
+    background: rgba(0, 128, 0, 0.2);
+    color: green;
   }
-
-  .delete-btn:hover {
-    background: #c82333;
+  
+  .status.ใกล้หมดอายุ {
+    background: rgba(255, 165, 0, 0.2);
+    color: orange;
   }
+  
+  .status.หมดอายุแล้ว {
+    background: rgba(255, 0, 0, 0.2);
+    color: red;
+  }
+  .out-of-stock {
+    font-weight: bold;
+    color: red;
+    background: rgba(255, 0, 0, 0.2);
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  
 
-  .detail-btn:hover {
-    background: #138496;
+  /* ✅ Responsive Design */
+  @media (max-width: 768px) {
+    table {
+      font-size: 12px;
+
+      th, td {
+        padding: 8px;
+      }
+    }
   }
 }
