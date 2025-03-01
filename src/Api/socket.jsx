@@ -1,15 +1,11 @@
+// src/Api/socket.jsx
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "wss://mawmong.shop";  // ต้องเป็น URL ที่รองรับ WebSocket
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "wss://mawmong.shop";
+
 const socket = io(SOCKET_URL, {
-  transports: ["websocket"], // ตั้งค่าให้ใช้ WebSocket
+  transports: ["websocket"], // ใช้ WebSocket
   secure: true,
 });
 
-socket.on("connect", () => {
-  console.log("✅ Connected to WebSocket", socket.id);
-});
-
-socket.on("disconnect", () => {
-  console.log("❌ Disconnected from WebSocket");
-});
+export default socket; // การส่งออกเป็น default

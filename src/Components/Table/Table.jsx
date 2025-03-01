@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../Api/axios";
+import socket from "../../Api/socket";
 import Swal from "sweetalert2";
 import { QRCodeCanvas } from "qrcode.react";
 import Sidebar from "../Layout/Sidebar/Sidebar";
@@ -8,6 +9,10 @@ import Navbar from "../Layout/Navbar/Navbar";
 import "./Table.scss";
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+socket.on("connect", () => {
+  console.log("WebSocket connected");
+});
 
 const Table = () => {
   const [tables, setTables] = useState([]);
