@@ -1,100 +1,76 @@
+// ตัวแปรสีหลักของระบบ
 $sidebar-width: 250px;
 $sidebar-collapsed-width: 60px;
-$product-primary-color: #4caf50;
-$product-secondary-color: #2196f3;
-$product-danger-color: #f44336;
+$primaryColor: #4caf50;
+$secondaryColor: #2196f3;
+$dangerColor: #f44336;
+$warningColor: #ebb654;
+$modalBg: rgba(0, 0, 0, 0.6);
 
-.product-container {
-  top: 3.9rem;
-  position: relative;
+// Container หลัก
+.menu-container {
+  display: flex;
 }
 
-.sidebar.collapsed ~ .product-content,.modal-content {
-  margin-left: 75px;
-  margin-right: 10px;
-}
-
-.product-content {
-  height: 100vh;
-  margin-right: 10px;
-  margin-left: 250px;
-  transition: margin-left 0.3s ease-in-out;
+// ส่วนเนื้อหาหลัก
+.menu-content {
+  flex: 1;
   padding: 20px;
+  margin-left: $sidebar-width;
+  transition: margin-left 0.3s ease-in-out;
   background-color: #f9f9f9;
   
-  .productheader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .menu-title {
+    font-size: 1.8rem;
+    font-weight: bold;
     margin-bottom: 20px;
-
-    h1 {
-      font-size: 1.5rem;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-
-      .btn {
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-
-        &.create {
-          background-color: var(--primaryColor);
-          color: white;
-        }
-
-        &.export {
-          background-color: #ebb654;
-          color: white;
-        }
-      }
-    }
   }
 
-  .filters {
+  // ปุ่ม + ค้นหา + เลือกหมวดหมู่
+  .menu-actions {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
 
-    .search-bar {
+    .search-input {
       flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
 
-    .btn {
-      max-width: 150px;
-      padding: 10px 15px;
+    .category-select {
+      width: 250px;
+    }
+
+    .btn-add {
+      background-color: $primaryColor;
+      color: white;
       border: none;
+      padding: 10px 15px;
       cursor: pointer;
       border-radius: 5px;
+      font-weight: bold;
 
-      &.search {
-        background-color: var(--primaryColor);
-        color: white;
-      }
-
-      &.clear {
-        background-color: $product-danger-color;
-        color: white;
+      &:hover {
+        background-color: darken($primaryColor, 10%);
       }
     }
   }
 
-  .product-table {
+  // ตารางเมนู
+  .menu-table {
     width: 100%;
     border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 
-    th,
-    td {
-      padding: 10px;
-      text-align: left;
+    th, td {
+      padding: 12px;
+      text-align: center;
       border-bottom: 1px solid #ddd;
     }
 
@@ -106,37 +82,43 @@ $product-danger-color: #f44336;
       width: 50px;
       height: 50px;
       object-fit: cover;
+      border-radius: 5px;
     }
 
     .btn-container {
       display: flex;
       gap: 10px;
+      justify-content: center;
       margin-top: 10px;
     }
 
     .btn {
-      max-width: 120px;
-      padding: 5px 15px;
+      padding: 7px 15px;
       border: none;
       cursor: pointer;
-      border-radius: 3px;
+      border-radius: 5px;
+      font-weight: bold;
 
       &.edit {
-        background-color: $product-secondary-color;
+        background-color: $secondaryColor;
         color: white;
       }
 
       &.delete {
-        background-color: $product-danger-color;
+        background-color: $dangerColor;
         color: white;
+      }
+
+      &:hover {
+        opacity: 0.8;
       }
     }
   }
-
 }
 
+// ✅ Modal Overlay สำหรับเพิ่มเมนู
 .modal-overlay {
-  background: rgba(0, 0, 0, 0.6);
+  background: $modalBg;
   position: fixed;
   top: 0;
   left: 0;
@@ -148,58 +130,87 @@ $product-danger-color: #f44336;
   z-index: 1000;
 }
 
+// ✅ Modal กลางหน้าจอ
 .modal-content {
-  width: 50%; // กำหนดให้ Modal กว้าง 50% ของหน้าจอ
-  max-width: 600px; // จำกัดความกว้างสูงสุดของ Modal
-  min-width: 400px; // กำหนดขนาดเล็กสุดให้รองรับทุกขนาดจอ
-  transition: margin-left 0.3s ease-in-out;
+  width: 40%;
+  max-width: 500px;
+  min-width: 350px;
   background: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 10px;
   text-align: center;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  transition: all 0.3s ease-in-out;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: $primaryColor;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .modal-select {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .save {
+      background-color: $primaryColor;
+      color: white;
+    }
+
+    .cancel {
+      background-color: #bbb;
+      color: white;
+    }
+
+    .save:hover {
+      background-color: darken($primaryColor, 10%);
+    }
+
+    .cancel:hover {
+      background-color: darken(#bbb, 10%);
+    }
+  }
 }
 
-/* ปรับ modal-content ให้เล็กลงเมื่อลด Sidebar */
+// ✅ ปรับ Modal เมื่อ Sidebar พับ
 .sidebar.collapsed ~ .modal-content {
   width: 50%;
   left: 50%;
   transform: translateX(-50%);
 }
 
-/* ปรับ input และปุ่มใน Modal */
-.modal-input{
-  margin-bottom: 10px;
-}
-.modal-select{
-  margin-bottom: 20px;
-  justify-content: space-around;
-}
-/* ปุ่มใน Modal */
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-
-  button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
+// ✅ Responsive สำหรับหน้าจอเล็ก
+@media screen and (max-width: 768px) {
+  .menu-content {
+    margin-left: $sidebar-collapsed-width;
   }
 
-  .save {
-    background-color: var(--primaryColor);
-    color: white;
-  }
-
-  .cancel {
-    background-color: #bbb;
-    color: white;
+  .modal-content {
+    width: 80%;
   }
 }

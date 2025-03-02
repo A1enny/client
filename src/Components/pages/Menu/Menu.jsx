@@ -38,6 +38,7 @@ const Product = () => {
     }
     setLoading(false);
   };
+  
   const [categoryOptions, setCategoryOptions] = useState([]);
 
   const fetchCategories = async () => {

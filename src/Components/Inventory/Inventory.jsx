@@ -70,6 +70,7 @@ const Inventory = () => {
 
   // ✅ ฟังก์ชันเปิด/ปิด Modal แก้ไขวัตถุดิบ
   const handleEditIngredient = (ingredient) => {
+    console.log("📢 กำลังแก้ไขวัตถุดิบ:", ingredient);
     setSelectedIngredient(ingredient);
     setEditModalOpen(true);
   };

@@ -31,88 +31,101 @@ const Product = () => {
   }, []);
 
   const fetchMenus = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/api/menus`);
-      console.log("📡 API Response (Menus):", response.data);
+  setLoading(true);
+  try {
+    const response = await axios.get(`${API_URL}/api/menus`);
+    console.log("📡 API Response (Menus):", response.data);
 
-      if (!Array.isArray(response.data)) {
-        throw new Error("API response is not an array");
-      }
-
-      setMenus(response.data);
-    } catch (error) {
-      console.error("❌ Error fetching menus:", error);
-      setMenus([]); // ตั้งค่าเป็น [] หากเกิด error
+    // ตรวจสอบว่า response.data มีผลลัพธ์ที่ถูกต้อง
+    if (response.data.success && Array.isArray(response.data.results)) {
+      setMenus(response.data.results); // กำหนดค่า menus ที่ได้จาก API
+    } else {
+      throw new Error("ข้อมูลเมนูไม่ถูกต้อง");
     }
-    setLoading(false);
-  };
+  } catch (error) {
+    console.error("❌ Error fetching menus:", error);
+    Swal.fire("Error", "ไม่สามารถดึงข้อมูลเมนูได้", "error");
+    setMenus([]); // ตั้งค่า menus เป็น [] เมื่อมีข้อผิดพลาด
+  }
+  setLoading(false);
+};
 
   const openEditModal = (menu) => {
     setEditData({
-        menu_id: menu.id,
-        recipe_id: menu.recipe_id || null, // ถ้าไม่มีค่า ให้เป็น null
-        menu_category_id: menu.menu_category_id || null,
-        price: menu.price || "",
+      menu_id: menu.id,
+      recipe_id: menu.recipe_id || null, // ถ้าไม่มีค่า ให้เป็น null
+      menu_category_id: menu.menu_category_id || null,
+      price: menu.price || "",
     });
     setEditModalIsOpen(true);
-};
+  };
 
-  
   const handleEditMenu = async () => {
-    if (!editData.menu_id || !editData.recipe_id || !editData.menu_category_id || !editData.price) {
-        Swal.fire("Error", "กรุณากรอกข้อมูลให้ครบถ้วน", "error");
-        return;
+    if (
+      !editData.menu_id ||
+      !editData.recipe_id ||
+      !editData.menu_category_id ||
+      !editData.price
+    ) {
+      Swal.fire("Error", "กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+      return;
     }
 
     try {
-        await axios.put(`${API_URL}/api/menus/${editData.menu_id}`, {
-            recipe_id: editData.recipe_id,
-            menu_category_id: editData.menu_category_id,
-            price: editData.price,
-        });
+      await axios.put(`${API_URL}/api/menus/${editData.menu_id}`, {
+        recipe_id: editData.recipe_id,
+        menu_category_id: editData.menu_category_id,
+        price: editData.price,
+      });
 
-        setEditModalIsOpen(false);
-        fetchMenus(); // โหลดข้อมูลใหม่หลังแก้ไขสำเร็จ
-        Swal.fire("สำเร็จ", "แก้ไขเมนูเรียบร้อย!", "success");
+      setEditModalIsOpen(false);
+      fetchMenus(); // โหลดข้อมูลใหม่หลังแก้ไขสำเร็จ
+      Swal.fire("สำเร็จ", "แก้ไขเมนูเรียบร้อย!", "success");
     } catch (error) {
-        console.error("❌ Error updating menu:", error.response?.data || error);
-        Swal.fire("Error", "ไม่สามารถแก้ไขเมนูได้", "error");
+      console.error("❌ Error updating menu:", error.response?.data || error);
+      Swal.fire("Error", "ไม่สามารถแก้ไขเมนูได้", "error");
     }
-};
+  };
 
-
-  
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/menus/category`);
       console.log("📡 API Response (Categories):", response.data);
-
-      if (!Array.isArray(response.data)) throw new Error("Invalid categories data");
-
-      setCategoryOptions(
-        response.data.map((cat) => ({
-          value: cat.menu_category_id, // ใช้ menu_category_id แทน category_id
-          label: cat.category_name,
-        }))
-      );
+  
+      if (response.data.success && Array.isArray(response.data.results)) {
+        setCategoryOptions(
+          response.data.results.map((cat) => ({
+            value: cat.menu_category_id,  // ใช้ menu_category_id เป็น value
+            label: cat.category_name,     // ใช้ category_name เป็น label
+          }))
+        );
+      } else {
+        throw new Error("Invalid categories data");
+      }
     } catch (error) {
       console.error("❌ Error fetching categories:", error);
+      Swal.fire("Error", "ไม่สามารถดึงข้อมูลหมวดหมู่ได้", "error");
     }
-  };
+  };  
 
   const fetchRecipes = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/recipes`);
-      if (!Array.isArray(response.data)) throw new Error("Invalid recipes data");
-      setRecipes(response.data);
+      if (Array.isArray(response.data)) {
+        setRecipes(response.data);
+      } else {
+        throw new Error("Invalid recipes data");
+      }
     } catch (error) {
       console.error("❌ Error fetching recipes:", error);
+      Swal.fire("Error", "ไม่สามารถดึงข้อมูลสูตรอาหารได้", "error");
     }
   };
 
   const filteredMenus = menus.filter((menu) =>
-    selectedCategory === "" ? true : menu.menu_category_id === parseInt(selectedCategory)
+    selectedCategory === ""
+      ? true
+      : menu.menu_category_id === parseInt(selectedCategory)
   );
 
   const handleAddMenu = async () => {
@@ -163,11 +176,14 @@ const Product = () => {
       <Sidebar />
       <div className="product-content">
         <h1 className="product-title">จัดการเมนูอาหาร</h1>
-  
-        <button className="btn btn-add-menu" onClick={() => setModalIsOpen(true)}>
+
+        <button
+          className="btn btn-add-menu"
+          onClick={() => setModalIsOpen(true)}
+        >
           + เพิ่มเมนู
         </button>
-  
+
         <div className="filters">
           <input
             type="text"
@@ -176,7 +192,7 @@ const Product = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-  
+
           <Select
             className="modal-select"
             options={categoryOptions}
@@ -184,7 +200,7 @@ const Product = () => {
             placeholder="เลือกหมวดหมู่..."
           />
         </div>
-  
+
         <table className="product-table">
           <thead>
             <tr>
@@ -202,16 +218,26 @@ const Product = () => {
                 <tr key={menu.id}>
                   <td>{index + 1}</td>
                   <td>
-                    <img className="menu-image" src={menu.image} alt={menu.name} />
+                    <img
+                      className="menu-image"
+                      src={menu.image}
+                      alt={menu.name}
+                    />
                   </td>
                   <td>{menu.name}</td>
                   <td>{menu.category_name || "ไม่ระบุหมวดหมู่"}</td>
                   <td>{menu.price} บาท</td>
                   <td className="action-buttons">
-                    <button className="btn btn-edit" onClick={() => openEditModal(menu)}>
+                    <button
+                      className="btn btn-edit"
+                      onClick={() => openEditModal(menu)}
+                    >
                       แก้ไข
                     </button>
-                    <button className="btn btn-delete" onClick={() => handleDelete(menu.id)}>
+                    <button
+                      className="btn btn-delete"
+                      onClick={() => handleDelete(menu.id)}
+                    >
                       ลบ
                     </button>
                   </td>
@@ -224,50 +250,78 @@ const Product = () => {
             )}
           </tbody>
         </table>
-  
+
         {/* ✅ Modal เพิ่มเมนู */}
-        <Modal className="modal-content" isOpen={modalIsOpen} onRequestClose={() => setModalIsOpen(false)}>
+        <Modal
+          className="modal-content"
+          isOpen={modalIsOpen}
+          onRequestClose={() => setModalIsOpen(false)}
+        >
           <h2 className="modal-title">เพิ่มเมนู</h2>
-  
+
           {/* ✅ เลือกสูตรอาหาร */}
           <Select
             className="modal-select"
-            options={recipes.map((r) => ({ value: r.id, label: r.name }))}
-            onChange={(e) => setMenuData((prev) => ({ ...prev, recipe_id: e.value }))}
+            options={
+              categoryOptions.length > 0
+                ? categoryOptions
+                : [{ value: "", label: "กรุณารอ..." }]
+            }
+            onChange={(e) =>
+              setMenuData((prev) => ({ ...prev, menu_category_id: e.value }))
+            }
+            placeholder="เลือกหมวดหมู่"
           />
-  
-          {/* ✅ เลือกหมวดหมู่จาก API */}
+
           <Select
             className="modal-select"
-            options={categoryOptions}
-            onChange={(e) => setMenuData((prev) => ({ ...prev, menu_category_id: e.value }))}
+            options={
+              recipes.length > 0
+                ? recipes.map((r) => ({
+                    value: r.recipe_id,
+                    label: r.recipe_name,
+                  }))
+                : [{ value: "", label: "กรุณารอ..." }]
+            }
+            onChange={(e) =>
+              setMenuData((prev) => ({ ...prev, recipe_id: e.value }))
+            }
+            placeholder="เลือกสูตรอาหาร"
           />
-  
+
           {/* ✅ กรอกราคา */}
           <input
             className="modal-input"
             type="number"
             placeholder="ราคา"
             value={menuData.price || ""}
-            onChange={(e) => setMenuData((prev) => ({ ...prev, price: e.target.value }))}
+            onChange={(e) =>
+              setMenuData((prev) => ({ ...prev, price: e.target.value }))
+            }
           />
-  
+
           <button className="btn btn-save" onClick={handleAddMenu}>
             เพิ่ม
           </button>
         </Modal>
-  
+
         {/* ✅ Modal แก้ไขเมนู */}
-        <Modal className="modal-content" isOpen={editModalIsOpen} onRequestClose={() => setEditModalIsOpen(false)}>
+        <Modal
+          className="modal-content"
+          isOpen={editModalIsOpen}
+          onRequestClose={() => setEditModalIsOpen(false)}
+        >
           <h2 className="modal-title">แก้ไขเมนู</h2>
-  
+
           <input
             className="modal-input"
             type="number"
             value={editData.price || ""}
-            onChange={(e) => setEditData((prev) => ({ ...prev, price: e.target.value }))}
+            onChange={(e) =>
+              setEditData((prev) => ({ ...prev, price: e.target.value }))
+            }
           />
-  
+
           <button className="btn btn-save" onClick={handleEditMenu}>
             บันทึก
           </button>
@@ -275,6 +329,6 @@ const Product = () => {
       </div>
     </div>
   );
-};  
+};
 
 export default Product;
