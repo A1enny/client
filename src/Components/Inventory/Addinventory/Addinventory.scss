@@ -1,84 +1,158 @@
-
+// ✅ ปรับระยะห่างเมื่อ Sidebar ถูกพับ
 .sidebar.collapsed ~ .add-inventory-content {
   margin-left: 80px;
   margin-right: 10px;
 }
 
+// ✅ ตั้งค่าหน้าหลักของหน้าเพิ่มวัตถุดิบ
 .add-inventory-container {
   display: flex;
   position: relative;
   flex-direction: row;
   height: 100vh;
+  background-color: #f4f4f4;
 }
 
+// ✅ เนื้อหาหลักของหน้า
 .add-inventory-content {
   margin-top: 4rem;
-  margin-left: 250px; /* ระยะห่างจาก Sidebar */
+  margin-left: 250px; // ระยะห่างจาก Sidebar
   padding: 20px;
- width: 100%;
+  width: 100%;
   transition: margin-left 0.3s ease-in-out;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 }
 
-h2 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
-}
-
+// ✅ ฟอร์มเพิ่มวัตถุดิบ
 .add-inventory-form {
   width: 100%;
-  
   background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+// ✅ ช่องใส่ข้อมูลแต่ละช่อง
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 5px;
+  position: relative;
+
+  label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 5px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: 0.3s;
+    width: 100%;
+    background-color: #f9f9f9;
+  }
+
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+    background-color: #fff;
+  }
 }
 
-label {
-  font-size: 16px;
-  color: #555;
-  margin-bottom: 5px;
-}
-
-input,
-select {
-  font-size: 14px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
-}
-.Buttonn{
+// ✅ ปุ่มทั้งหมด (แก้ปัญหาปุ่มไม่แสดง)
+.button-group {
   display: flex;
-  justify-content: b;
-.submit-btn {
-  max-width: fit-content;
-  left: 10px;
-  padding: 8px 15px;
-  .submit-btn:hover {
-    background-color: #256428;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+
+  button {
+    font-size: 16px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+    max-width: 300px;
+    width: 100%; // ✅ ป้องกันปุ่มเล็กเกินไป
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .submit-btn {
+    background-color: #4caf50;
+    color: white;
+    font-weight: bold;
+
+    &:hover {
+      background-color: #256428;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      background-color: #1e4f22;
+      transform: translateY(1px);
+    }
+  }
+
+  .cancel-btn {
+    background-color: #d32f2f;
+    color: white;
+    font-weight: bold;
+
+    &:hover {
+      background-color: #b81610;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      background-color: #8f0d0a;
+      transform: translateY(1px);
+    }
   }
 }
- 
-.cancel-btn{
-  max-width: fit-content;
-  .cancel-btn:hover {
-    background-color: #b81610;
+
+// ✅ Responsive: ปรับ UI เมื่อจอเล็ก
+@media (max-width: 768px) {
+  .add-inventory-content {
+    margin-left: 80px;
+    padding: 15px;
   }
-}
+
+  .button-group {
+    flex-direction: column;
+    gap: 10px;
+
+    button {
+      width: 100%;
+    }
+  }
 }

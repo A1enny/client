@@ -9,7 +9,7 @@ import EditIngredientModal from "./Edit/EditIngredientModal";
 import InventoryTable from "./InventoryTable";
 
 const Inventory = () => {
-  const [activeTab, setActiveTab] = useState("normal"); // ค่าเริ่มต้นเป็นคลังวัตถุดิบ
+  const [activeTab, setActiveTab] = useState("normal");
   const [data, setData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,38 +22,56 @@ const Inventory = () => {
   const navigate = useNavigate();
 
   // ✅ ฟังก์ชันดึงข้อมูลวัตถุดิบ
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let response;
-        const params = {
-          page: currentPage,
-          limit: 10,
-          search: searchTerm || undefined,
-          category: selectedCategory || undefined,
-        };
-  
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page: currentPage,
+        limit: 10,
+        search: searchTerm || undefined,
+        category: selectedCategory || undefined,
+      };
+
+      let response;
+      if (activeTab === "batches") {
+        // 🔖 ดึงข้อมูลล็อตวัตถุดิบ
+        response = await axios.get("/api/inventory", { params });
+      } else {
+        // 📦 ดึงข้อมูลวัตถุดิบปกติ
         response = await axios.get("/api/materials", { params });
-  
-        console.log("📌 API Response:", response.data); // ✅ ตรวจสอบข้อมูลที่ได้จาก API
-  
-        setData(response.data.results || []);
-        setTotalPages(response.data.totalPages || 1);
-      } catch (error) {
-        console.error("❌ Error fetching data:", error);
-      } finally {
-        setLoading(false);
       }
-    };
-  
-    fetchData();
-  }, [searchTerm, selectedCategory, currentPage]);
-  
+
+      console.log(`📌 API Response (${activeTab}):`, response.data);
+
+      let materials = response.data.results || [];
+
+      if (activeTab === "expired") {
+        // ⚠️ กรองข้อมูลเฉพาะ "หมดอายุ" และ "ใกล้หมดอายุ"
+        const today = new Date();
+        const next7Days = new Date();
+        next7Days.setDate(today.getDate() + 7);
+
+        materials = materials.filter((item) => {
+          const expDate = new Date(item.expiration_date);
+          return expDate < today || (expDate >= today && expDate <= next7Days);
+        });
+      }
+
+      setData(materials);
+      setTotalPages(response.data.totalPages || 1);
+    } catch (error) {
+      console.error(`❌ Error fetching data (${activeTab}):`, error);
+      setData([]);
+      setTotalPages(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔄 เรียกใช้งาน fetchData ทุกครั้งที่ activeTab, searchTerm, selectedCategory, หรือ currentPage เปลี่ยน
   useEffect(() => {
-    console.log("🔍 ตรวจสอบข้อมูลที่ใช้แสดงผล: ", data);
-  }, [data]);
-  
+    fetchData();
+  }, [activeTab, searchTerm, selectedCategory, currentPage]);
 
   // ✅ ฟังก์ชันดึงหมวดหมู่วัตถุดิบ
   useEffect(() => {
@@ -68,6 +86,29 @@ const Inventory = () => {
     fetchCategories();
   }, []);
 
+  const [batchDetails, setBatchDetails] = useState([]);
+  const [batchModalOpen, setBatchModalOpen] = useState(false);
+
+  const handleViewBatch = async (batch) => {
+    try {
+      const response = await axios.get(`/api/inventory/${batch.batch_id}`);
+
+      if (
+        !response.data ||
+        !response.data.results ||
+        response.data.results.length === 0
+      ) {
+        throw new Error("❌ ไม่พบข้อมูลล็อต หรือ API ส่งค่าผิดพลาด");
+      }
+
+      setBatchDetails(response.data.results);
+      setBatchModalOpen(true);
+    } catch (error) {
+      console.error("❌ Error fetching batch details:", error);
+      Swal.fire("❌ ไม่สามารถโหลดข้อมูลล็อต", "กรุณาลองใหม่อีกครั้ง", "error");
+    }
+  };
+
   // ✅ ฟังก์ชันเปิด/ปิด Modal แก้ไขวัตถุดิบ
   const handleEditIngredient = (ingredient) => {
     console.log("📢 กำลังแก้ไขวัตถุดิบ:", ingredient);
@@ -81,9 +122,44 @@ const Inventory = () => {
       Swal.fire("❌ ลบไม่สำเร็จ", "ID ของวัตถุดิบไม่ถูกต้อง", "error");
       return;
     }
-  
+
     const confirm = await Swal.fire({
       title: "⚠ ลบวัตถุดิบ?",
+      text: "การลบนี้จะไม่สามารถกู้คืนได้ คุณต้องการดำเนินการต่อหรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await axios.delete(`/api/materials/${id}`);
+      Swal.fire("✅ ลบสำเร็จ!", "วัตถุดิบถูกลบออกจากระบบ", "success");
+
+      setData((prev) => prev.filter((item) => item.material_id !== id));
+    } catch (error) {
+      console.error("❌ Error deleting:", error);
+      Swal.fire(
+        "❌ ลบไม่สำเร็จ",
+        error.response?.data?.error || "เกิดข้อผิดพลาด",
+        "error"
+      );
+    }
+  };
+
+  const handleDeleteBatch = async (batchId) => {
+    if (!batchId) {
+      console.error("❌ Batch ID is undefined!");
+      Swal.fire("❌ ลบไม่สำเร็จ", "ID ของล็อตไม่ถูกต้อง", "error");
+      return;
+    }
+  
+    const confirm = await Swal.fire({
+      title: "⚠ ลบล็อตวัตถุดิบ?",
       text: "การลบนี้จะไม่สามารถกู้คืนได้ คุณต้องการดำเนินการต่อหรือไม่?",
       icon: "warning",
       showCancelButton: true,
@@ -96,25 +172,33 @@ const Inventory = () => {
     if (!confirm.isConfirmed) return;
   
     try {
-      // ✅ ลบวัตถุดิบโดยตรง
-      await axios.delete(`/api/materials/${id}`);
-      Swal.fire("✅ ลบสำเร็จ!", "วัตถุดิบถูกลบออกจากระบบ", "success");
+      await axios.delete(`/api/inventory/${batchId}`);
+      Swal.fire("✅ ลบสำเร็จ!", "ล็อตวัตถุดิบถูกลบออกจากระบบ", "success");
   
-      // 🔄 อัปเดต state
-      setData((prev) => prev.filter((item) => item.material_id !== id));
+      setData((prev) => prev.filter((item) => item.batch_id !== batchId));
     } catch (error) {
-      console.error("❌ Error deleting:", error);
-      Swal.fire("❌ ลบไม่สำเร็จ", error.response?.data?.error || "เกิดข้อผิดพลาด", "error");
+      console.error("❌ Error deleting batch:", error);
+      Swal.fire(
+        "❌ ลบไม่สำเร็จ",
+        error.response?.data?.error || "เกิดข้อผิดพลาด",
+        "error"
+      );
     }
-  };  
+  };
   
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="Inventory-container">
       <Navbar />
       <Sidebar />
       <div className="Inventory-content">
         <div className="Header">
-          <h1>จัดการคลังวัตถุดิบ</h1>
+          <h1>📦 จัดการคลังวัตถุดิบ</h1>
           <button
             className="add-button"
             onClick={() => navigate("/AddInventory")}
@@ -122,7 +206,7 @@ const Inventory = () => {
             + เพิ่มวัตถุดิบ
           </button>
         </div>
-        {/* ตัวกรอง */}
+
         <div className="Inventory-filters">
           <select
             value={selectedCategory}
@@ -137,52 +221,78 @@ const Inventory = () => {
           </select>
           <input
             type="text"
-            placeholder="ค้นหาวัตถุดิบ..."
+            placeholder="🔍 ค้นหาวัตถุดิบ..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button
+            className="clear-filter-btn"
             onClick={() => {
               setSearchTerm("");
               setSelectedCategory("");
             }}
           >
-            ล้างตัวกรอง
+            ❌ ล้างตัวกรอง
           </button>
         </div>
-        {/* ปุ่มเลือกหมวดหมู่ */}
+
         <div className="tab-navigation">
-          {["normal", "expired", "batches"].map((tab) => (
+          {[
+            { key: "batches", label: "🔖 ล็อตวัตถุดิบ" },
+            { key: "normal", label: "📦 คลังวัตถุดิบ" },
+            { key: "expired", label: "⚠️ คลังวัตถุดิบหมดอายุ" },
+          ].map((tab) => (
             <button
-              key={tab}
-              className={activeTab === tab ? "active" : ""}
-              onClick={() => setActiveTab(tab)}
+              key={tab.key}
+              className={activeTab === tab.key ? "active" : ""}
+              onClick={() => setActiveTab(tab.key)}
             >
-              {tab === "normal"
-                ? "คลังวัตถุดิบ"
-                : tab === "expired"
-                ? "คลังวัตถุดิบหมดอายุ"
-                : "ล็อตวัตถุดิบ"}
+              {tab.label}
             </button>
           ))}
         </div>
-        {/* แสดงข้อมูล */}
+
         {loading ? (
           <div className="loading-container">
             <p>🔄 กำลังโหลดข้อมูล...</p>
           </div>
         ) : data.length > 0 ? (
-          <InventoryTable
-            activeTab={activeTab}
-            data={data}
-            onEditIngredient={handleEditIngredient}
-            onDeleteIngredient={handleDeleteIngredient}
-          />
+          <>
+            <InventoryTable
+              activeTab={activeTab}
+              data={data}
+              onEditIngredient={handleEditIngredient}
+              onDeleteIngredient={handleDeleteIngredient}
+              onDeleteBatch={handleDeleteBatch} 
+              onViewBatch={
+                activeTab === "batches" ? handleViewBatch : undefined
+              } // ✅ ส่งเฉพาะหน้าล็อต
+            />
+
+            <div className="pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ◀️
+              </button>
+              <span>
+                หน้าที่ {currentPage} จาก {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                ▶️
+              </button>
+            </div>
+          </>
         ) : (
           <div className="no-data">
-            <p>❌ ไม่มีข้อมูล</p>
+            <p>❌ ไม่พบข้อมูลในหมวดหมู่ที่เลือก</p>
           </div>
         )}
+
         {editModalOpen && selectedIngredient && (
           <EditIngredientModal
             ingredient={selectedIngredient}
@@ -190,6 +300,73 @@ const Inventory = () => {
           />
         )}
       </div>
+
+      {batchModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>📦 รายละเอียดล็อต #{batchDetails[0]?.batch_id}</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>📑 รหัสวัตถุดิบ</th>
+                  <th>📌 ชื่อวัตถุดิบ</th>
+                  <th>💰 ราคา</th>
+                  <th>📅 วันที่รับเข้า</th>
+                  <th>⏳ วันหมดอายุ</th>
+                  <th>⚙️ จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {batchDetails.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.material_id}</td>
+                    <td>{item.material_name}</td>
+                    <td>
+                      {item.price && !isNaN(parseFloat(item.price))
+                        ? `${parseFloat(item.price).toFixed(2)} ฿`
+                        : "N/A"}
+                    </td>
+                    <td>
+                      {item.received_date
+                        ? new Date(item.received_date).toLocaleDateString(
+                            "th-TH"
+                          )
+                        : "N/A"}
+                    </td>
+                    <td>
+                      {item.expiration_date
+                        ? new Date(item.expiration_date).toLocaleDateString(
+                            "th-TH"
+                          )
+                        : "N/A"}
+                    </td>
+                    <td>
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEditIngredient(item)}
+                      >
+                        ✏️ แก้ไข
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteIngredient(item.material_id)}
+                      >
+                        🗑 ลบ
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              className="close-btn"
+              onClick={() => setBatchModalOpen(false)}
+            >
+              ❌ ปิด
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
