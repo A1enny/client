@@ -10,6 +10,7 @@ const AddInventory = () => {
   const [ingredientName, setIngredientName] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
+  const [unitId, setUnitId] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
   const [receivedDate, setReceivedDate] = useState("");
@@ -17,6 +18,7 @@ const AddInventory = () => {
   const [shelfLifeDays, setShelfLifeDays] = useState(null);
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState("");
+  const [batchData, setBatchData] = useState([]);  // ✅ แก้ปัญหา `setBatchData is not defined`
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -57,6 +59,12 @@ const AddInventory = () => {
     fetchShelfLife();
   }, [categoryId]);
 
+  useEffect(() => {
+    if (selectedBatch) {
+      fetchBatchDetails(selectedBatch);
+    }
+  }, [selectedBatch]);
+
   const handleReceivedDateChange = (date) => {
     setReceivedDate(date);
     if (!expirationDate && shelfLifeDays) {
@@ -69,31 +77,55 @@ const AddInventory = () => {
   const handleAddIngredient = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const data = {
-      name: ingredientName,
-      category_id: categoryId,
-      unit_id: 1,
-      quantity: parseFloat(quantity),
-      received_date: receivedDate,
-      expiration_date: expirationDate || null,
-      price: parseFloat(price),
-      batch_id: selectedBatch || null,
-    };
-
-    console.log("📌 ข้อมูลที่กำลังส่งไป:", data);
-
+  
+    // ✅ ตรวจสอบว่ามีค่าครบ
+    if (!ingredientName || !categoryId || quantity <= 0 || price < 0) {
+      Swal.fire("❌ กรุณากรอกข้อมูลให้ครบถ้วน");
+      setLoading(false);
+      return;
+    }
+  
     try {
-      const res = await axios.post("/api/inventory", data);
-      console.log("✅ Batch Created:", res.data);
-      Swal.fire({ icon: "success", title: "✅ สำเร็จ", text: "เพิ่มวัตถุดิบและล็อตสำเร็จ!" }).then(() => {
-        navigate("/inventory");
+      const response = await axios.post("/api/inventory", {
+        name: ingredientName,
+        category_id: categoryId,
+        unit_id: 1,  // ✅ บังคับเป็น 1 หากไม่มีค่า
+        quantity: parseFloat(quantity),
+        received_date: receivedDate,
+        expiration_date: expirationDate || null,
+        price: parseFloat(price),
+        batch_id: selectedBatch || null,
       });
+  
+      console.log("✅ API Response:", response.data);
+  
+      Swal.fire({
+        icon: "success",
+        title: response.data.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+  
+      if (response.data.batch_id) {
+        setSelectedBatch(response.data.batch_id);
+        fetchBatchDetails(response.data.batch_id);
+      }
+  
     } catch (error) {
-      console.error("❌ API Error:", error.response?.data);
-      Swal.fire({ icon: "error", title: "❌ ล้มเหลว", text: "เกิดข้อผิดพลาด กรุณาลองใหม่" });
+      console.error("❌ API Error:", error);
+      Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่สามารถเพิ่มวัตถุดิบได้", "error");
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const fetchBatchDetails = async (batchId) => {
+    try {
+      const response = await axios.get(`/api/inventory/${batchId}`);
+      console.log("📌 API Response:", response.data);
+      setBatchData(response.data.results || []);
+    } catch (error) {
+      console.error("❌ Error fetching batch details:", error);
     }
   };
 

@@ -31,7 +31,7 @@
     gap: 10px;
     margin-bottom: 20px;
     align-items: center;
-
+   
     .search-input {
       padding: 12px;
       border: 1px solid #ccc;
@@ -155,5 +155,25 @@
         transform: scale(1.05);
       }
     }
+  }
+}
+.refesh {
+  min-width: 150px;
+  background-color: #4e8df5;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #357ae8;
+    transform: scale(1.05);
   }
 }

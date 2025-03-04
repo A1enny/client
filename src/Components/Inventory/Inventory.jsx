@@ -27,17 +27,15 @@ const Inventory = () => {
     try {
       const params = {
         page: currentPage,
-        limit: 10,
+        limit: 10,  // ✅ จำกัดผลลัพธ์ที่ 10 รายการ
         search: searchTerm || undefined,
         category: selectedCategory || undefined,
       };
 
       let response;
       if (activeTab === "batches") {
-        // 🔖 ดึงข้อมูลล็อตวัตถุดิบ
         response = await axios.get("/api/inventory", { params });
       } else {
-        // 📦 ดึงข้อมูลวัตถุดิบปกติ
         response = await axios.get("/api/materials", { params });
       }
 
@@ -46,7 +44,6 @@ const Inventory = () => {
       let materials = response.data.results || [];
 
       if (activeTab === "expired") {
-        // ⚠️ กรองข้อมูลเฉพาะ "หมดอายุ" และ "ใกล้หมดอายุ"
         const today = new Date();
         const next7Days = new Date();
         next7Days.setDate(today.getDate() + 7);
@@ -57,8 +54,12 @@ const Inventory = () => {
         });
       }
 
-      setData(materials);
-      setTotalPages(response.data.totalPages || 1);
+      // ✅ ตัดผลลัพธ์ที่แสดงผลให้ไม่เกิน 10 รายการ
+      setData(materials.slice(0, 10));
+
+      // ✅ ตรวจสอบและตั้งค่า totalPages ให้ถูกต้อง
+      setTotalPages(Math.max(1, Math.ceil((response.data.total || materials.length) / 10)));
+
     } catch (error) {
       console.error(`❌ Error fetching data (${activeTab}):`, error);
       setData([]);
@@ -66,7 +67,8 @@ const Inventory = () => {
     } finally {
       setLoading(false);
     }
-  };
+};
+
 
   // 🔄 เรียกใช้งาน fetchData ทุกครั้งที่ activeTab, searchTerm, selectedCategory, หรือ currentPage เปลี่ยน
   useEffect(() => {
@@ -95,17 +97,19 @@ const Inventory = () => {
 
       if (
         !response.data ||
-        !response.data.results ||
+        !Array.isArray(response.data.results) ||
         response.data.results.length === 0
       ) {
-        throw new Error("❌ ไม่พบข้อมูลล็อต หรือ API ส่งค่าผิดพลาด");
+        throw new Error("❌ ไม่พบข้อมูลล็อต");
       }
 
-      setBatchDetails(response.data.results);
+      console.log("📌 Batch Details:", response.data.results);
+      setBatchDetails([...response.data.results]); // ✅ ป้องกัน State ไม่อัปเดต
       setBatchModalOpen(true);
     } catch (error) {
       console.error("❌ Error fetching batch details:", error);
       Swal.fire("❌ ไม่สามารถโหลดข้อมูลล็อต", "กรุณาลองใหม่อีกครั้ง", "error");
+      setBatchDetails([]); // ป้องกัน error จอขาว
     }
   };
 
@@ -157,7 +161,7 @@ const Inventory = () => {
       Swal.fire("❌ ลบไม่สำเร็จ", "ID ของล็อตไม่ถูกต้อง", "error");
       return;
     }
-  
+
     const confirm = await Swal.fire({
       title: "⚠ ลบล็อตวัตถุดิบ?",
       text: "การลบนี้จะไม่สามารถกู้คืนได้ คุณต้องการดำเนินการต่อหรือไม่?",
@@ -168,13 +172,13 @@ const Inventory = () => {
       confirmButtonText: "ลบ",
       cancelButtonText: "ยกเลิก",
     });
-  
+
     if (!confirm.isConfirmed) return;
-  
+
     try {
       await axios.delete(`/api/inventory/${batchId}`);
       Swal.fire("✅ ลบสำเร็จ!", "ล็อตวัตถุดิบถูกลบออกจากระบบ", "success");
-  
+
       setData((prev) => prev.filter((item) => item.batch_id !== batchId));
     } catch (error) {
       console.error("❌ Error deleting batch:", error);
@@ -185,12 +189,12 @@ const Inventory = () => {
       );
     }
   };
-  
+
   const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
   };
+  
 
   return (
     <div className="Inventory-container">
@@ -263,27 +267,27 @@ const Inventory = () => {
               data={data}
               onEditIngredient={handleEditIngredient}
               onDeleteIngredient={handleDeleteIngredient}
-              onDeleteBatch={handleDeleteBatch} 
+              onDeleteBatch={handleDeleteBatch}
               onViewBatch={
                 activeTab === "batches" ? handleViewBatch : undefined
               } // ✅ ส่งเฉพาะหน้าล็อต
             />
 
             <div className="pagination">
-              <button
+              <button className="prev"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                ◀️
+              ◀️
               </button>
               <span>
                 หน้าที่ {currentPage} จาก {totalPages}
               </span>
-              <button
+              <button className="next"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
-                ▶️
+              ▶️
               </button>
             </div>
           </>
@@ -317,45 +321,44 @@ const Inventory = () => {
                 </tr>
               </thead>
               <tbody>
-                {batchDetails.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.material_id}</td>
-                    <td>{item.material_name}</td>
-                    <td>
-                      {item.price && !isNaN(parseFloat(item.price))
-                        ? `${parseFloat(item.price).toFixed(2)} ฿`
-                        : "N/A"}
-                    </td>
-                    <td>
-                      {item.received_date
-                        ? new Date(item.received_date).toLocaleDateString(
-                            "th-TH"
-                          )
-                        : "N/A"}
-                    </td>
-                    <td>
-                      {item.expiration_date
-                        ? new Date(item.expiration_date).toLocaleDateString(
-                            "th-TH"
-                          )
-                        : "N/A"}
-                    </td>
-                    <td>
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEditIngredient(item)}
-                      >
-                        ✏️ แก้ไข
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDeleteIngredient(item.material_id)}
-                      >
-                        🗑 ลบ
-                      </button>
+                {Array.isArray(batchDetails) && batchDetails.length > 0 ? (
+                  batchDetails.map((item, index) => (
+                    <tr key={`${item.batch_id}-${index}`}>
+                      {" "}
+                      {/* ✅ ป้องกัน key ซ้ำ */}
+                      <td>{item.material_id}</td>
+                      <td>{item.material_name}</td>
+                      <td>
+                        {item.price
+                          ? `${parseFloat(item.price).toFixed(2)} ฿`
+                          : "N/A"}
+                      </td>
+                      <td>
+                        {item.received_date
+                          ? new Date(item.received_date).toLocaleDateString(
+                              "th-TH"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td>
+                        {item.expiration_date
+                          ? new Date(item.expiration_date).toLocaleDateString(
+                              "th-TH"
+                            )
+                          : "N/A"}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      style={{ textAlign: "center", color: "gray" }}
+                    >
+                      ❌ ไม่มีข้อมูลล็อต
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
             <button

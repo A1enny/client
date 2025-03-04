@@ -69,24 +69,22 @@ const Recipe = () => {
   const handleViewRecipe = async (recipe) => {
     try {
       const response = await axios.get(`${API_URL}/api/recipes/${recipe.id}`);
-      console.log("📢 Recipe Details Response:", response.data);
-
-      if (
-        !response.data.ingredients ||
-        response.data.ingredients.length === 0
-      ) {
-        console.warn("⚠️ ไม่มีวัตถุดิบในสูตรอาหารนี้");
-      }
-
+      console.log("📢 Recipe Details Response:", response.data); // ✅ เช็คข้อมูลก่อนใช้
+  
       setSelectedRecipe({
         ...response.data,
-        id: recipe.id, // ✅ กำหนด id ให้ `selectedRecipe`
-        ingredients: response.data.ingredients || [], // ✅ ป้องกัน undefined
+        id: recipe.id,
+        ingredients: response.data.ingredients || [], 
       });
     } catch (error) {
       console.error("❌ Error fetching recipe details:", error);
+      Swal.fire(
+        "❌ ไม่สามารถโหลดข้อมูล",
+        "เกิดข้อผิดพลาดในการดึงข้อมูลสูตรอาหาร",
+        "error"
+      );
     }
-  };
+  };  
 
   // 📌 ฟังก์ชันลบสูตรอาหาร
   const handleDeleteRecipe = async (id) => {
@@ -168,14 +166,14 @@ const Recipe = () => {
             {/* ✅ แสดงภาพ พร้อม fallback */}
             {selectedRecipe.image ? (
               <img
-                src={selectedRecipe.image}
-                alt={selectedRecipe.name}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/images/default.jpg"; // ✅ ใช้ภาพเริ่มต้นถ้าภาพโหลดไม่ได้
-                }}
-                style={{ width: "200px", height: "200px", objectFit: "cover" }}
-              />
+              src={API_URL + selectedRecipe.image}
+              alt={selectedRecipe.recipe_name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/images/default.jpg"; // ใช้รูปเริ่มต้นถ้ารูปโหลดไม่ได้
+              }}
+              style={{ width: "200px", height: "200px", objectFit: "cover" }}
+            />            
             ) : (
               <p>ไม่มีภาพ</p>
             )}
@@ -196,13 +194,17 @@ const Recipe = () => {
                     <tr key={index}>
                       <td>{ingredient.material_name || "ไม่พบชื่อ"}</td>
                       <td>{ingredient.category_name || "ไม่พบหมวดหมู่"}</td>
-                      <td>{ingredient.quantity || 0}</td>
+                      <td>{parseFloat(ingredient.amount) || 0}</td>{" "}
+                      {/* ✅ แก้ให้แน่ใจว่าจำนวนเป็นตัวเลข */}
                       <td>{ingredient.unit_name || "กรัม"}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" style={{ textAlign: "center", color: "red" }}>
+                    <td
+                      colSpan="4"
+                      style={{ textAlign: "center", color: "red" }}
+                    >
                       ❌ ไม่มีข้อมูลวัตถุดิบในสูตรนี้
                     </td>
                   </tr>
@@ -218,7 +220,7 @@ const Recipe = () => {
               แก้ไขสูตรอาหาร
             </button>
             <button
-            className="deleteRecipeBtn"
+              className="deleteRecipeBtn"
               onClick={() => {
                 console.log("🔴 ลบสูตรอาหาร ID:", selectedRecipe.id);
                 handleDeleteRecipe(selectedRecipe.id);

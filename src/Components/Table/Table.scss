@@ -1,187 +1,154 @@
-// ✅ Container หลัก
-.Table-container {
-  margin-top: 3.8rem;
-  display: flex;
-  flex-direction: row;
-  background-color: #f8f9fa; // Light Mode พื้นหลัง
-  min-height: 100vh;
-  padding: 20px;
-  transition: background 0.3s;
-}
+  .Table-container{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    margin-top: 4rem;
+    background-color: #f5f7fa;
+  }
 
-// ✅ Sidebar แบบ Responsive
-.sidebar.collapsed ~ .Table-content {
-  margin-left: 75px;
-  margin-right: 10px;
-}
+// ✅ Sidebar Responsive
+  .sidebar.collapsed ~ .Table-content {
+    margin-left: 75px;
+  }
 
-// ✅ เนื้อหาหลักของหน้า
+  .sidebar:not(.collapsed) ~ .Table-content {
+    margin-left: 250px;
+  }
+
+// ✅ เนื้อหาหลัก
 .Table-content {
-  flex: 1;
-  padding: 20px;
-  margin-right: 10px;
-  margin-left: 250px;
-  transition: margin-left 0.3s;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 0.3s ease;
+    padding: 20px;
 
   h1 {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-  }
-}
-
-// ✅ ส่วนค้นหาและกรอง
-.Table-filters {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-  align-items: center;
-  padding: 10px;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-
-  input,
-  select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    background-color: #fff;
-    transition: all 0.2s ease-in-out;
-
-    &:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
-    }
-  }
-
-  button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background-color: #0056b3;
-    }
-  }
-}
-
-// ✅ ตารางแสดงข้อมูล
-.Table-data {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  margin-top: 20px;
-
-  thead {
-    background-color: #007bff;
-    color: #fff;
-
-    th {
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 600;
-      text-align: center;
-    }
-  }
-
-  tbody {
-    tr {
-      border-bottom: 1px solid #ddd;
-      transition: background 0.3s;
-
-      &:hover {
-        background-color: #f1f1f1;
-      }
-
-      td {
-        padding: 14px;
-        font-size: 14px;
-        text-align: center;
-
-        .button-group {
-          display: flex;
-          justify-content: center;
-          gap: 15px;
-        }
-
-        .start-btn {
-          background-color: #28a745;
-          color: #fff;
-          padding: 8px 12px;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: background 0.3s;
-
-          &:hover {
-            background-color: #218838;
-          }
-        }
-
-        .details-button {
-          background-color: #007bff;
-          color: #fff;
-          padding: 8px 12px;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: background 0.3s;
-
-          &:hover {
-            background-color: #0056b3;
-          }
-        }
-
-        .delete-button {
-          background-color: #dc3545;
-          color: #fff;
-          padding: 8px 12px;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: background 0.3s;
-
-          &:hover {
-            background-color: #c82333;
-          }
-        }
-      }
-    }
+    font-size: 1.8rem;
+    margin-bottom: 15px;
   }
 }
 
 // ✅ ปุ่มเพิ่มโต๊ะ
-.add-table-btn-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
+.add-table-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
 
-  .add-table-btn {
-    padding: 10px 20px;
-    font-size: 16px;
+  &:hover {
+    background-color: #218838;
+  }
+}
+
+// ✅ ฟิลเตอร์และค้นหา
+.table-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+
+  input, select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+}
+
+// ✅ ตารางโต๊ะอาหาร
+.Table-data {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+
+  th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
     background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
+    color: white;
+  }
+
+  tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+}
+
+// ✅ สถานะของโต๊ะ
+.status {
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+
+  &.available {
+    background-color: #28a745;
+    color: white;
+  }
+
+  &.reserved {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  &.in-use {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  &.needs-cleaning {
+    background-color: #6c757d;
+    color: white;
+  }
+}
+
+// ✅ ปุ่มจัดการ
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 2px;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:nth-child(2) {
+    background-color: #007bff;
+    color: white;
+  }
+
+  &:nth-child(3) {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  &:nth-child(4) {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  &.delete-button {
+    background-color: #ff4d4d;
+    color: white;
 
     &:hover {
-      background-color: #0056b3;
+      background-color: #e60000;
     }
   }
 }
 
-// ✅ Modal แบบ Responsive
+// ✅ Modal สำหรับเพิ่มโต๊ะ
 .modal {
   position: fixed;
   top: 0;
@@ -192,97 +159,56 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.3s;
 
   .modal-content {
-    background: #ffffff;
+    background: white;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 8px;
+    width: 400px;
     text-align: center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    max-width: 400px;
-    width: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 
     h2 {
       margin-bottom: 10px;
     }
 
-    input {
+    input, select {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 8px;
+      margin: 8px 0;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 5px;
+      font-size: 1rem;
     }
 
-    .modal-buttons {
-      display: flex;
-      justify-content: space-between;
-
-      button {
-        padding: 10px;
-        flex: 1;
-        margin: 5px;
-      }
-
-      .confirm {
-        background-color: #28a745;
-        color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s;
-
-        &:hover {
-          background-color: #218838;
-        }
-      }
-
-      .cancel {
-        background-color: #dc3545;
-        color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s;
-
-        &:hover {
-          background-color: #c82333;
-        }
-      }
+    button {
+      width: 48%;
+      margin-top: 10px;
+      padding: 10px;
     }
   }
 }
 
-// ✅ ทำให้ Responsive
+// ✅ Responsive Design
 @media (max-width: 768px) {
   .Table-container {
     flex-direction: column;
-    padding: 10px;
   }
 
   .Table-content {
-    margin-left: 0;
     padding: 15px;
   }
 
-  .Table-filters {
+  .table-controls {
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
   }
 
   .Table-data {
-    font-size: 12px;
+    font-size: 0.9rem;
 
-    thead {
-      th {
-        font-size: 14px;
-        padding: 10px;
-      }
-    }
-
-    tbody {
-      td {
-        padding: 10px;
-      }
+    th, td {
+      padding: 8px;
     }
   }
 }

@@ -122,40 +122,42 @@ const Addrecipe = () => {
     setQuantity("");
   };
 
-  const submitRecipe = async () => {
-    console.log("📢 Data before submit:", {
-      recipe_name: recipe.recipe_name,
-      category_id: recipe.category_id,
-      image: recipe.image,
-      ingredients,
-    });
-    if (!recipe.recipe_name || !recipe.category_id || ingredients.length === 0) {
-      Swal.fire("Error", "กรุณากรอกชื่อสูตรอาหาร", "error");
+  const submitRecipe = async (e) => {
+    e.preventDefault();
+  
+    // ตรวจสอบค่าที่จำเป็นต้องมี
+    if (!recipe.recipe_name || !recipe.category_id) {
+      Swal.fire("❌ ข้อผิดพลาด", "กรุณากรอกชื่อสูตรอาหารและเลือกหมวดหมู่", "error");
       return;
     }
-
+  
+    if (ingredients.length === 0) {
+      Swal.fire("❌ ข้อผิดพลาด", "กรุณาเพิ่มวัตถุดิบในสูตรอาหาร", "error");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("recipe_name", recipe.recipe_name);
+    formData.append("category_id", recipe.category_id);
+    formData.append("image", recipe.image); // ตรวจสอบว่า recipe.image ไม่เป็น null
+    formData.append("ingredients", JSON.stringify(ingredients));
+  
     try {
-      const formData = new FormData();
-      formData.append("recipe_name", recipe.recipe_name);
-      formData.append("category_id", recipe.category_id);
-      if (recipe.image) {
-        formData.append("image", recipe.image);
-      } else {
-        formData.append("image", recipe.image_url?.split("/").pop() || "default.jpg");
-      }
-      formData.append("ingredients", JSON.stringify(ingredients));
-
-      const url = id ? `${API_URL}/api/recipes/${id}` : `${API_URL}/api/recipes`;
-      const method = id ? "put" : "post";
-
-      await axios({ method, url, data: formData, headers: { "Content-Type": "multipart/form-data" } });
-
-      Swal.fire("สำเร็จ", "บันทึกสูตรอาหารเรียบร้อย", "success").then(() => navigate("/recipe"));
+      const response = await axios.post(`${API_URL}/api/recipes`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+  
+      console.log("✅ API Response:", response.data);
+      Swal.fire("✅ สำเร็จ", "บันทึกสูตรอาหารเรียบร้อย", "success").then(() => {
+        navigate("/recipe"); // กลับไปที่หน้ารายการสูตรอาหาร
+      });
     } catch (error) {
-      console.error("❌ Error submitting recipe:", error);
-      Swal.fire("Error", "เกิดข้อผิดพลาดในการบันทึกสูตรอาหาร", "error");
+      console.error("❌ Error saving recipe:", error);
+      Swal.fire("❌ ผิดพลาด", "เกิดข้อผิดพลาดในการบันทึกสูตรอาหาร", "error");
     }
   };
+  
+
 
   return (
     <div className="add-recipe-container">

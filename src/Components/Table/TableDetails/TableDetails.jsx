@@ -18,9 +18,9 @@ const generateReceipt = (orders, table) => {
   const doc = new jsPDF();
   doc.setFont("THSarabunNew", "bold");
   doc.setFontSize(16);
-  doc.text("เเมวมองร้านอาหารญี่ปุ่น", 14, 10);
+  doc.text("🛑 ร้านอาหารญี่ปุ่น", 14, 10);
   doc.setFontSize(12);
-  doc.text("TEL: 089-9550001", 14, 18);
+  doc.text("📞 TEL: 089-9550001", 14, 18);
 
   doc.setFontSize(14);
   doc.text(`โต๊ะ: ${table.table_number}`, 14, 30);
@@ -49,7 +49,8 @@ const generateReceipt = (orders, table) => {
 };
 
 const TableDetails = () => {
-  const { table_id } = useParams();
+  const { table_id } = useParams();const { table_id } = useParams();
+  console.log("📌 ค่า table_id ที่ได้รับจาก useParams():", table_id);
   const navigate = useNavigate();
   const [table, setTable] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -57,28 +58,32 @@ const TableDetails = () => {
   const [isPaid, setIsPaid] = useState(false);
   const promptPayNumber = "0657317994";
 
+  // ✅ ดึงข้อมูลโต๊ะ
   const fetchTableDetails = useCallback(async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      console.log(`🔍 กำลังดึงข้อมูลโต๊ะ ID: ${table_id}`); // Debugging
       const response = await axios.get(`${API_URL}/api/tables/${table_id}`);
-      setTable(response.data);
+  
+      if (response.data) {
+        console.log("✅ ข้อมูลโต๊ะที่ได้รับ:", response.data);
+        setTable(response.data);
+      } else {
+        throw new Error("ไม่มีข้อมูลโต๊ะ");
+      }
     } catch (error) {
       console.error("❌ ดึงข้อมูลโต๊ะผิดพลาด:", error);
       Swal.fire("❌ ไม่พบโต๊ะ", "กรุณาตรวจสอบหมายเลขโต๊ะ", "error");
-      navigate(-1);
     } finally {
       setIsLoading(false);
     }
-  }, [table_id, navigate]);
+  }, [table_id]);  
 
+  // ✅ ดึงออร์เดอร์
   const fetchOrders = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/api/orders?table_id=${table_id}`);
-      if (Array.isArray(response.data)) {
-        setOrders(response.data);
-      } else {
-        console.error("❌ API ไม่ส่ง Array:", response.data);
-      }
+      setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("❌ ดึงข้อมูลออร์เดอร์ผิดพลาด:", error);
       Swal.fire("❌ ไม่สามารถโหลดออร์เดอร์ได้", "กรุณาลองใหม่", "error");
@@ -103,7 +108,6 @@ const TableDetails = () => {
   const handlePaymentConfirm = async () => {
     try {
       await axios.put(`${API_URL}/api/orders/confirm-payment`, { table_id });
-
       Swal.fire("✅ ชำระเงินสำเร็จ!", "บันทึกยอดขายแล้ว", "success");
       fetchTableDetails();
       setOrders([]);
@@ -114,42 +118,18 @@ const TableDetails = () => {
     }
   };
 
-  if (isLoading) {
-    return <p>⏳ กำลังโหลดข้อมูล...</p>;
-  }
-
-  if (!table) {
-    return <p>❌ ไม่พบข้อมูลโต๊ะ</p>;
-  }
-
-  const groupedOrders = orders.reduce((acc, order) => {
-    const existingOrder = acc.find((item) => item.itemName.trim() === order.itemName.trim());
-
-    if (existingOrder) {
-      existingOrder.quantity += Number(order.quantity) || 0;
-      existingOrder.price += (Number(order.price) || 0) * (Number(order.quantity) || 0);
-    } else {
-      acc.push({
-        itemName: order.itemName.trim(),
-        quantity: Number(order.quantity) || 0,
-        price: (Number(order.price) || 0) * (Number(order.quantity) || 0),
-      });
-    }
-    return acc;
-  }, []);
-
-  const newTotalPrice = groupedOrders.reduce((sum, order) => sum + order.price, 0);
-
+  if (isLoading) return <p>⏳ กำลังโหลดข้อมูล...</p>;
+  if (!table) return <p>❌ ไม่พบข้อมูลโต๊ะ</p>;
 
   return (
     <div className="TableDetails-container">
       <Navbar />
       <Sidebar />
       <div className="TableDetails-content">
-        <h1>รายละเอียดโต๊ะ: {table?.table_number || "ไม่พบข้อมูล"}</h1>
-        <p><strong>จำนวนที่นั่ง:</strong> {table?.seats ?? "N/A"}</p>
-        <p><strong>สถานะ:</strong> {table?.status ?? "ไม่ทราบสถานะ"}</p>
-  
+        <h1>📌 รายละเอียดโต๊ะ: {table.table_number}</h1>
+        <p><strong>🪑 จำนวนที่นั่ง:</strong> {table.seats}</p>
+        <p><strong>🔄 สถานะ:</strong> <span className={`status ${table.status}`}>{table.status}</span></p>
+
         <h2>📜 รายการออร์เดอร์</h2>
         {orders.length > 0 ? (
           <table className="order-table">
@@ -157,8 +137,8 @@ const TableDetails = () => {
               <tr><th>ชื่อเมนู</th><th>จำนวน</th><th>ราคา</th></tr>
             </thead>
             <tbody>
-              {groupedOrders.map((order, index) => (
-                <tr key={order.itemName || index}>
+              {orders.map((order, index) => (
+                <tr key={index}>
                   <td>{order.itemName}</td>
                   <td>{order.quantity}</td>
                   <td>{Number(order.price).toFixed(2)} บาท</td>
@@ -167,28 +147,26 @@ const TableDetails = () => {
             </tbody>
           </table>
         ) : (
-          <p>❌ ยังไม่มีออร์เดอร์</p>
+          <p>❌ ไม่มีออร์เดอร์</p>
         )}
-  
-        <h3 className="total-price">💰 ยอดรวม: {newTotalPrice.toFixed(2)} บาท</h3>
-  
+
+        <h3 className="total-price">💰 ยอดรวม: {orders.reduce((sum, order) => sum + order.price, 0).toFixed(2)} บาท</h3>
+
         {/* ✅ แสดงปุ่มเฉพาะเมื่อมีออร์เดอร์ */}
         {orders.length > 0 && !isPaid && (
           <>
             <button onClick={handlePaymentConfirm}>✅ ยืนยันการชำระเงิน</button>
-            <button onClick={handlePaymentConfirm}>💵 รับเงินสด</button>
+            <button onClick={() => generateReceipt(orders, table)}>🖨️ พิมพ์ใบเสร็จ</button>
           </>
         )}
-  
-        {/* ✅ แสดงปุ่มพิมพ์ใบเสร็จเมื่อชำระเงินแล้ว */}
-        {isPaid && (
-          <button onClick={() => generateReceipt(groupedOrders, table)}>🖨️ พิมพ์ใบเสร็จ</button>
-        )}
-  
+
+        {/* ✅ ปุ่มโหลดข้อมูลใหม่ */}
+        <button onClick={fetchOrders}>🔄 โหลดข้อมูลใหม่</button>
+
         <button onClick={() => navigate(-1)}>⬅️ กลับ</button>
       </div>
     </div>
   );
 };
-  
+
 export default TableDetails;

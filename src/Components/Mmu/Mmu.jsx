@@ -35,6 +35,7 @@ const ManageUsers = () => {
   // ✅ ดึงข้อมูล Users
   const fetchUsers = async () => {
     const token = localStorage.getItem("token");
+    console.log("🟢 Token ที่ใช้:", token);
     if (!token) {
       Swal.fire("❌ คุณไม่ได้เข้าสู่ระบบ", "โปรดเข้าสู่ระบบใหม่", "error");
       return;
@@ -221,7 +222,7 @@ const ManageUsers = () => {
                       >
                         แก้ไข
                       </button>
-                      <button onClick={() => handleDeleteUser(user.user_id)}>ลบ</button>
+                      <button className="delete-button" onClick={() => handleDeleteUser(user.user_id)}>ลบ</button>
                     </td>
                   </tr>
                 ))
