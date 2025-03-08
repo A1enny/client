@@ -1,16 +1,21 @@
 .dashboard-container {
+  margin-bottom: 2rem;
   display: flex;
-  height: 100vh;
+  flex-direction: column;
+  height: 100vh; /* ✅ ยืดเต็มหน้าจอ */
   background-color: #f5f7fa;
   font-family: 'Roboto', sans-serif;
 }
 
+/* 🌟 กำหนดให้ Content สามารถเลื่อนลงได้ */
 .dashboard-content {
   flex: 1;
   padding: 20px;
   background-color: var(--whiteColor);
-  margin-left: 250px; /* Default margin when sidebar is expanded */
+  margin-left: 250px; /* ✅ Default margin สำหรับ sidebar */
   transition: margin-left 0.3s ease-in-out;
+  overflow-y: auto; /* ✅ ให้เลื่อนลงได้ */
+  max-height: calc(100vh - 60px); /* ✅ ป้องกัน Overflow */
 }
 
 /* 🎯 ส่วนหัว */
@@ -31,19 +36,17 @@
 
 /* 🎯 บัตรข้อมูลสรุป */
 .infoCards {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
 }
 
 .infoCards .card {
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  flex: 1 1 calc(23% - 10px);
   text-align: center;
-  margin: 5px;
   color: white;
   font-weight: bold;
   transition: transform 0.3s, box-shadow 0.3s;
@@ -54,7 +57,7 @@
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 🎨 สีพื้นหลังสำหรับแต่ละการ์ด */
+/* 🎨 สีพื้นหลังสำหรับการ์ด */
 .infoCards .card:nth-child(1) { background: linear-gradient(to right, #45bee9, #51a7e6); }
 .infoCards .card:nth-child(2) { background: linear-gradient(to right, #6a11cb, #2575fc); }
 .infoCards .card:nth-child(3) { background: linear-gradient(to right, #ff758c, #ff7eb3); }
@@ -62,10 +65,10 @@
 
 /* 🎯 โซนกราฟ */
 .charts {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .chartContainer {
@@ -73,8 +76,10 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  flex: 1 1 calc(48% - 10px);
-  margin: 5px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .chartContainer h4 {
@@ -85,40 +90,84 @@
 
 /* 🎯 ตารางข้อมูล */
 .dataTables {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* ✅ ปรับขนาดให้ยืดหยุ่น */
+  gap: 15px;
 }
 
 .tableContainer {
+  margin-top: 15px;
   background-color: #fff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  flex: 1 1 calc(48% - 10px);
-  margin: 5px;
+  border-radius: 10px; /* ✅ ทำให้โค้งมนขึ้น */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* ✅ เพิ่มเงาให้ดูมีมิติ */
+  overflow-x: auto; /* ✅ ป้องกันข้อมูลล้น */
 }
 
+/* 🎯 หัวข้อของแต่ละตาราง */
 .tableContainer h4 {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
   margin-bottom: 15px;
+  color: #333;
 }
 
+/* 📊 ตาราง */
 .tableContainer table {
   width: 100%;
   border-collapse: collapse;
+  overflow: hidden; /* ✅ ป้องกันการแตกของขอบ */
+  border-radius: 10px;
 }
 
-.tableContainer th,
+/* 🎯 หัวตาราง */
+.tableContainer th {
+  background: var(--primaryColor); /* ✅ ใช้ Gradient ให้ดูทันสมัย */
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+  padding: 15px;
+  text-align: center;
+}
+
+/* 📌 ปรับขนาดตัวอักษรในตาราง */
 .tableContainer td {
   padding: 12px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  color: #444;
 }
 
+/* ✅ แถวสลับสีให้ดูเป็นระเบียบ */
 .tableContainer tr:nth-child(even) {
   background-color: #f9f9f9;
+}
+
+/* 🎯 เพิ่มเอฟเฟกต์ Hover */
+.tableContainer tr:hover {
+  background-color: #e3f2fd; /* ✅ เปลี่ยนสีพื้นหลังเมื่อ Hover */
+  transition: background 0.3s ease-in-out;
+}
+
+/* 🎯 Responsive */
+@media screen and (max-width: 768px) {
+  .dataTables {
+    grid-template-columns: 1fr; /* ✅ จัดให้เป็นแนวตั้งในมือถือ */
+  }
+
+  .tableContainer {
+    padding: 15px;
+  }
+
+  .tableContainer table {
+    font-size: 12px;
+  }
+
+  .tableContainer th,
+  .tableContainer td {
+    padding: 10px;
+  }
 }
 
 /* 🛠 ปรับสำหรับหน้าจอเล็ก (Responsive) */
@@ -129,29 +178,18 @@
   }
 
   .infoCards {
-    flex-direction: column;
-  }
-
-  .infoCards .card {
-    width: 100%;
-    margin-bottom: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
   .charts {
-    flex-direction: column;
-  }
-
-  .chartContainer {
-    width: 100%;
-    margin-bottom: 20px;
+    grid-template-columns: 1fr;
   }
 
   .dataTables {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .tableContainer {
-    width: 100%;
     margin-bottom: 20px;
   }
 }

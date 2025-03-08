@@ -1,7 +1,17 @@
 import React from "react";
 import "./InventoryTable.scss";
 
-const InventoryTable = ({ activeTab, data, onEditIngredient, onDeleteIngredient, onEditBatch, onDeleteBatch, onViewBatch }) => {
+const InventoryTable = ({
+  activeTab,
+  data,
+  onEditIngredient,
+  onDeleteIngredient,
+  onEditBatch,
+  onDeleteBatch,
+  onViewBatch,
+  currentPage,
+  itemsPerPage,
+}) => {
   return (
     <div className="inventory-table">
       <table>
@@ -31,6 +41,10 @@ const InventoryTable = ({ activeTab, data, onEditIngredient, onDeleteIngredient,
         </thead>
         <tbody>
           {data.map((item, index) => {
+            const currentPageSafe = currentPage || 1; // ✅ ถ้า currentPage เป็น undefined ให้ใช้ค่า 1
+            const itemsPerPageSafe = itemsPerPage || 10; // ✅ ถ้า itemsPerPage เป็น undefined ให้ใช้ค่า 10
+            const rowNumber =
+              (currentPageSafe - 1) * itemsPerPageSafe + (index + 1); // ✅ คำนวณลำดับที่
             const receivedDate =
               item.received_date && item.received_date !== "N/A"
                 ? new Date(item.received_date).toLocaleDateString("th-TH")
@@ -55,28 +69,34 @@ const InventoryTable = ({ activeTab, data, onEditIngredient, onDeleteIngredient,
               <tr key={index}>
                 {activeTab === "batches" ? (
                   <>
-                    <td>{item.batch_id}</td>
+                    <td>{rowNumber}</td> {/* ✅ ใช้ตัวเลขเรียงตามหน้า */}
                     <td>{receivedDate}</td>
                     <td>{expirationDate}</td>
                     <td>
                       <span className={`status ${status}`}>{status}</span>
                     </td>
                     <td>
-                      <button className="view-btn" onClick={() => onViewBatch(item)}>
+                     
+                      <button
+                        className="view-btn"
+                        onClick={() =>
+                          onViewBatch(item, currentPage, itemsPerPage)
+                        }
+                      >
                         🔍 ดูรายละเอียด
                       </button>
-                      <button className="edit-btn" onClick={() => onEditBatch(item)}>
-                        ✏️ แก้ไข
-                      </button>
-                      <button className="delete-btn" onClick={() => onDeleteBatch(item.batch_id)}>
+                      <button
+                        className="delete-btn"
+                        onClick={() => onDeleteBatch(item.batch_id)}
+                      >
                         🗑 ลบ
                       </button>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td>{item.material_id}</td>
-                    <td>{item.material_name || "ไม่ระบุ"}</td>
+                    <td>{rowNumber}</td> {/* ✅ ใช้ตัวเลขเรียงตามหน้า */}
+                    <td>{item.material_name+'  ' + expirationDate || "ไม่ระบุ"}</td>
                     <td>{item.category_name || "ไม่ระบุ"}</td>
                     <td>{receivedDate}</td>
                     <td>{`${item.total_quantity || 0} g`}</td>
@@ -85,10 +105,16 @@ const InventoryTable = ({ activeTab, data, onEditIngredient, onDeleteIngredient,
                       <span className={`status ${status}`}>{status}</span>
                     </td>
                     <td>
-                      <button className="edit-btn" onClick={() => onEditIngredient(item)}>
+                      <button
+                        className="edit-btn"
+                        onClick={() => onEditIngredient(item)}
+                      >
                         ✏️ แก้ไข
                       </button>
-                      <button className="delete-btn" onClick={() => onDeleteIngredient(item.material_id)}>
+                      <button
+                        className="delete-btn"
+                        onClick={() => onDeleteIngredient(item.material_id)}
+                      >
                         🗑 ลบ
                       </button>
                     </td>

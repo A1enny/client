@@ -1,214 +1,173 @@
-  .Table-container{
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    margin-top: 4rem;
-    background-color: #f5f7fa;
-  }
-
-// ✅ Sidebar Responsive
-  .sidebar.collapsed ~ .Table-content {
-    margin-left: 75px;
-  }
-
-  .sidebar:not(.collapsed) ~ .Table-content {
-    margin-left: 250px;
-  }
-
-// ✅ เนื้อหาหลัก
-.Table-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    transition: margin-left 0.3s ease;
-    padding: 20px;
-
-  h1 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-  }
-}
-
-// ✅ ปุ่มเพิ่มโต๊ะ
-.add-table-btn {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background-color: #218838;
-  }
-}
-
-// ✅ ฟิลเตอร์และค้นหา
-.table-controls {
+// Table.scss
+.table-page {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-
-  input, select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
+  margin-top: 3.75rem;
+  min-height: 100vh;
+  background-color: #f5f7fa;
 }
 
-// ✅ ตารางโต๊ะอาหาร
-.Table-data {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+.table-main {
+  flex-grow: 1;
+  padding: 25px;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
 
-  th, td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 
-  th {
-    background-color: #007bff;
-    color: white;
-  }
-
-  tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-}
-
-// ✅ สถานะของโต๊ะ
-.status {
-  font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 5px;
-
-  &.available {
-    background-color: #28a745;
-    color: white;
-  }
-
-  &.reserved {
-    background-color: #ffc107;
-    color: black;
-  }
-
-  &.in-use {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.needs-cleaning {
-    background-color: #6c757d;
-    color: white;
-  }
-}
-
-// ✅ ปุ่มจัดการ
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin: 2px;
-  transition: all 0.2s;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:nth-child(2) {
-    background-color: #007bff;
-    color: white;
-  }
-
-  &:nth-child(3) {
-    background-color: #ffc107;
-    color: black;
-  }
-
-  &:nth-child(4) {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.delete-button {
-    background-color: #ff4d4d;
-    color: white;
-
-    &:hover {
-      background-color: #e60000;
-    }
-  }
-}
-
-// ✅ Modal สำหรับเพิ่มโต๊ะ
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-
-    h2 {
-      margin-bottom: 10px;
+    h1 {
+      color: #333;
     }
 
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
+    .btn-add {
+      background-color: #3371c8;
+      color: #fff;
+      border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      padding: 10px 15px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #2a5ea6;
+      }
+    }
+  }
+
+  .filter-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .sort-select {
+      width: auto;
+      min-width: 210px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    .table-search {
+      width: auto;
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      min-width: 200px;
+    }
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    th, td {
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #3371c8;
+      color: #f5f7fa;
     }
 
     button {
-      width: 48%;
-      margin-top: 10px;
-      padding: 10px;
+      margin: 3px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+
+      &:nth-child(1) {
+        background-color: #ffc107;
+        color: #fff;
+      }
+
+      &:nth-child(2) {
+        background-color: #17a2b8;
+        color: #fff;
+      }
+
+      &:nth-child(3) {
+        background-color: #dc3545;
+        color: #fff;
+      }
+
+      &:hover {
+        opacity: 0.9;
+      }
     }
+  }
+
+  .modal-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 300px;
+
+      input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+
+      button {
+        padding: 8px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+
+        &:first-of-type {
+          background-color: #28a745;
+          color: #fff;
+        }
+
+        &:last-of-type {
+          background-color: #6c757d;
+          color: #fff;
+        }
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    color: #999;
+    margin-top: 30px;
   }
 }
 
-// ✅ Responsive Design
-@media (max-width: 768px) {
-  .Table-container {
-    flex-direction: column;
-  }
+.sidebar.collapsed ~ .table-main {
+  margin-left: 75px;
+}
 
-  .Table-content {
-    padding: 15px;
-  }
-
-  .table-controls {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .Table-data {
-    font-size: 0.9rem;
-
-    th, td {
-      padding: 8px;
-    }
-  }
+.sidebar:not(.collapsed) ~ .table-main {
+  margin-left: 250px;
 }

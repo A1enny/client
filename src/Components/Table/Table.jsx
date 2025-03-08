@@ -7,126 +7,90 @@ import { QRCodeCanvas } from "qrcode.react";
 import Sidebar from "../Layout/Sidebar/Sidebar";
 import Navbar from "../Layout/Navbar/Navbar";
 import "./Table.scss";
+import EditTableModal from "./EditTable/EditTable";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-socket.on("connect", () => console.log("✅ WebSocket connected"));
-
 const Table = () => {
   const [tables, setTables] = useState([]);
-  const [filters, setFilters] = useState({ search: "", status: "", zone: "" });
+  const [filters, setFilters] = useState({ search: "", sort: "asc" });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTable, setNewTable] = useState({
-    table_number: "",
-    seats: "",
-    zone: "",
-  });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedTable, setSelectedTable] = useState(null);
+  const [newTable, setNewTable] = useState({ table_number: "", seats: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const searchTimeout = useRef(null);
 
-  // ✅ ดึงข้อมูลโต๊ะจาก API
+  const handleDeleteTable = async (tableId) => {
+    try {
+      await axios.delete(`${API_URL}/api/tables/${tableId}`);
+      Swal.fire("✅", "ลบโต๊ะสำเร็จ", "success");
+      fetchTables(); // โหลดข้อมูลใหม่หลังจากลบ
+    } catch (error) {
+      Swal.fire("❌", "ลบโต๊ะไม่สำเร็จ", "error");
+    }
+  };
+  
   const fetchTables = useCallback(async () => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams(filters).toString();
-      const response = await axios.get(`${API_URL}/api/tables?${queryParams}`);
-      setTables(response.data);
+      const response = await axios.get(`${API_URL}/api/tables`, { params: filters });
+      const sortedTables = response.data.sort((a, b) => filters.sort === "asc" ? a.table_number - b.table_number : b.table_number - a.table_number);
+      setTables(sortedTables);
     } catch (error) {
-      console.error("❌ ดึงข้อมูลโต๊ะผิดพลาด:", error);
+      console.error("❌ Error:", error);
     } finally {
       setLoading(false);
     }
   }, [filters]);
 
   useEffect(() => {
-    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(fetchTables, 500);
   }, [filters, fetchTables]);
 
   useEffect(() => {
-    const eventSource = new EventSource(`${API_URL}/api/tables/updates`);
-    eventSource.onmessage = (event) => setTables(JSON.parse(event.data));
-    return () => eventSource.close();
-  }, []);
-
-  const updateTableStatus = (tableId, newStatus) => {
-    setTables((prev) =>
-      prev.map((t) =>
-        t.table_id === tableId ? { ...t, status: newStatus } : t
-      )
-    );
-  };
-
-  const handleTableAction = async (tableId, action, message, newStatus) => {
-    try {
-      await axios.put(`${API_URL}/api/tables/${tableId}/${action}`);
-      Swal.fire("✅ สำเร็จ", message, "success");
-      updateTableStatus(tableId, newStatus);
-    } catch (error) {
-      Swal.fire("❌ ผิดพลาด", "กรุณาลองใหม่", "error");
-    }
-  };
-
-  const handleAddTable = async () => {
-    if (!newTable.table_number || !newTable.seats || !newTable.zone) {
-      Swal.fire("❌ กรุณากรอกข้อมูลให้ครบ", "", "error");
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${API_URL}/api/tables`, {
-        ...newTable,
-        status: "available",
-      });
-
-      Swal.fire("✅ เพิ่มโต๊ะสำเร็จ!", "", "success");
-      setIsModalOpen(false);
-      setTables((prev) => [...prev, response.data]);
-    } catch (error) {
-      console.error("❌ Error:", error);
-      Swal.fire("❌ ไม่สามารถเพิ่มโต๊ะได้", "กรุณาลองใหม่", "error");
-    }
-  };
+    socket.on("tableUpdated", fetchTables);
+    return () => socket.off("tableUpdated");
+  }, [fetchTables]);
 
   return (
-    <div className="Table-container">
+    <div className="table-page">
       <Navbar />
       <Sidebar />
-      <div className="Table-content">
-        <h1>จัดการโต๊ะอาหาร</h1>
-        <button className="add-table-btn" onClick={() => setIsModalOpen(true)}>
-          ➕ เพิ่มโต๊ะ
-        </button>
+      <div className="table-main">
+        <div className="table-header">
+          <h1>จัดการโต๊ะอาหาร</h1>
+          <button className="btn-add" onClick={() => setIsModalOpen(true)}>เพิ่มโต๊ะ</button>
+        </div>
 
-        <div className="table-controls">
+        <div className="filter-section">
+          <select
+            className="sort-select"
+            value={filters.sort}
+            onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+          >
+            <option value="asc">🔼 หมายเลขโต๊ะ: น้อยไปมาก</option>
+            <option value="desc">🔽 หมายเลขโต๊ะ: มากไปน้อย</option>
+          </select>
           <input
+            className="table-search"
             type="text"
             placeholder="ค้นหาโต๊ะ..."
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           />
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="">ทั้งหมด</option>
-            <option value="available">Available</option>
-            <option value="reserved">Reserved</option>
-            <option value="in-use">In Use</option>
-            <option value="needs-cleaning">Needs Cleaning</option>
-          </select>
         </div>
 
         {loading ? (
-          <p>⏳ กำลังโหลดข้อมูล...</p>
+          <div className="loading">⏳ Loading...</div>
         ) : (
-          <table className="Table-data">
+          <table className="table">
             <thead>
               <tr>
                 <th>หมายเลขโต๊ะ</th>
-                <th>จำนวนที่นั่ง</th>
-                <th>สถานะ</th>
+                <th>ที่นั่ง</th>
                 <th>QR Code</th>
                 <th>จัดการ</th>
               </tr>
@@ -136,108 +100,33 @@ const Table = () => {
                 <tr key={table.table_id}>
                   <td>{table.table_number}</td>
                   <td>{table.seats}</td>
-                  <td className={`status ${table.status}`}>{table.status}</td>
                   <td>
                     <QRCodeCanvas
                       value={`${window.location.origin}/order/${table.table_id}?guest=true`}
-                      size={100}
+                      size={90}
                     />
                   </td>
                   <td>
-                    <button
-                      onClick={() =>
-                        navigate(`/table-details/${table.table_id}`)
-                      }
-                    >
-                      ℹ️ ดูรายละเอียด
-                    </button>
-                    {table.status === "available" && (
-                      <button
-                        onClick={() =>
-                          handleTableAction(
-                            table.table_id,
-                            "reserve",
-                            "โต๊ะถูกจองแล้ว",
-                            "reserved"
-                          )
-                        }
-                      >
-                        📌 จองโต๊ะ
-                      </button>
-                    )}
-                    {table.status === "reserved" && (
-                      <button
-                        onClick={() =>
-                          handleTableAction(
-                            table.table_id,
-                            "start",
-                            "โต๊ะถูกใช้งานแล้ว",
-                            "in-use"
-                          )
-                        }
-                      >
-                        ▶ เริ่มใช้งาน
-                      </button>
-                    )}
-                    {table.status === "in-use" && (
-                      <button
-                        onClick={() =>
-                          handleTableAction(
-                            table.table_id,
-                            "reset",
-                            "โต๊ะพร้อมใช้งานแล้ว",
-                            "available"
-                          )
-                        }
-                      >
-                        🔄 คืนโต๊ะ
-                      </button>
-                    )}
-                    <button
-                      className="delete-button"
-                      onClick={() =>
-                        handleTableAction(
-                          table.table_id,
-                          "delete",
-                          "โต๊ะถูกลบแล้ว"
-                        )
-                      }
-                    >
-                      🗑 ลบ
-                    </button>
+                    <button onClick={() => {
+                      setSelectedTable(table);
+                      setIsEditModalOpen(true);
+                    }}>✏️ แก้ไข</button>
+                    <button onClick={() => navigate(`/table-details/${table.table_id}`)}>ℹ️ รายละเอียด</button>
+                    <button onClick={() => handleDeleteTable(table.table_id)}>🗑️ ลบ</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </div>
 
-      {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>➕ เพิ่มโต๊ะใหม่</h2>
-            <input
-              type="text"
-              placeholder="หมายเลขโต๊ะ"
-              value={newTable.table_number}
-              onChange={(e) =>
-                setNewTable({ ...newTable, table_number: e.target.value })
-              }
-            />
-            <input
-              type="number"
-              placeholder="จำนวนที่นั่ง"
-              value={newTable.seats}
-              onChange={(e) =>
-                setNewTable({ ...newTable, seats: e.target.value })
-              }
-            />
-            <button onClick={handleAddTable}>✅ เพิ่มโต๊ะ</button>
-            <button onClick={() => setIsModalOpen(false)}>❌ ยกเลิก</button>
-          </div>
-        </div>
-      )}
+        <EditTableModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          tableData={selectedTable}
+          onUpdated={fetchTables}
+        />
+      </div>
     </div>
   );
 };

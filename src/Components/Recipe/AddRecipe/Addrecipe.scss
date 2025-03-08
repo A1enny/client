@@ -2,181 +2,283 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
-.sidebar.collapsed ~ .add-recipe-content {
-  margin-left: 80px;
-  margin-right: 10px;
+  background-color: #f8f9fa;
 }
 
-  .add-recipe-content {
-    margin-top: 3.9rem;
-    flex: 1;
-    margin-left: 250px; // ปรับให้เหมาะสมกับ Sidebar
+.add-recipe-content {
+  margin-top: 3.9rem;
+  flex: 1;
+  margin-left: 250px;
+  padding: 20px;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  form.create-form {
+    display: flex;
+    flex-direction: column;
+    background: white;
     padding: 20px;
-    transition: margin-left 0.3s ease-in-out;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 
-    h2 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+    .recipe-preview {
+      display: block; // ✅ แสดงเป็น block
+      margin-top: 10px;
+      max-width: 400px;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      object-fit: cover;
     }
+    
 
-    form.create-form {
-      display: flex;
-      flex-direction: column;
+    .form-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #ffffff;
 
-      .form-section {
-        margin-bottom: 30px;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background-color: #f9f9f9;
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #444;
+      }
 
-        h3 {
-          font-size: 1.5rem;
-          margin-bottom: 15px;
+      .upload-image {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        img {
+          margin-bottom: 10px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          max-width: 150px;
+          height: auto;
+          object-fit: cover;
         }
 
-        .upload-image {
-          display: flex;
-          flex-direction: column;
-
-          img {
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-          }
-
-          input[type="file"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-          }
-        }
-
-        .form-group {
-          margin-bottom: 15px;
-
-          label {
-            display: block;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-          }
-
-          input,
-          select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-          }
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
+        input[type="file"] {
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          background: #f8f8f8;
+          cursor: pointer;
         }
       }
 
-      .ingredient-list {
-        margin-top: 20px;
+      .form-group {
+        margin-bottom: 15px;
 
-        h4 {
-          margin-bottom: 10px;
+        label {
+          display: block;
+          font-size: 1rem;
+          font-weight: bold;
+          margin-bottom: 5px;
         }
 
-        table {
+        input,
+        select {
           width: 100%;
-          border-collapse: collapse;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 14px;
+        }
+      }
 
-          thead {
-            background-color: #f1f1f1;
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+    }
 
-            th {
-              text-align: left;
+    // ✅ ปรับตำแหน่งให้ input, Select และปุ่ม "เพิ่มวัตถุดิบ" อยู่ในแนวเดียวกันทางขวา
+    .ingredient-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; // จัดให้อยู่ทางขวา
+      gap: 10px; // เพิ่มระยะห่าง
+
+      .select-ingredient {
+        width: auto;
+        flex: 2; // ทำให้ dropdown กว้างขึ้น
+        min-width: 250px;
+      }
+
+      .quantity-input {
+        min-width: 400px;
+        width: auto;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .add-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+    }
+
+    .ingredient-list {
+      margin-top: 20px;
+
+      h4 {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 5px;
+        overflow: hidden;
+
+        thead {
+          background-color: #007bff;
+          color: white;
+
+          th {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #ddd;
+          }
+        }
+
+        tbody {
+          tr {
+            border: 1px solid #ddd;
+
+            td {
               padding: 10px;
               border: 1px solid #ddd;
+              text-align: left;
             }
-          }
 
-          tbody {
-            tr {
-              border: 1px solid #ddd;
+            .delete-btn {
+              background-color: #ff4d4f;
+              color: white;
+              border: none;
+              padding: 6px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 0.9rem;
+              transition: 0.3s;
 
-              td {
-                padding: 10px;
-                border: 1px solid #ddd;
-                text-align: left;
-
-                button {
-                  background-color: #ff4d4f;
-                  color: white;
-                  border: none;
-                  padding: 5px 10px;
-                  border-radius: 4px;
-                  cursor: pointer;
-                  font-size: 0.9rem;
-
-                  &:hover {
-                    background-color: #ff7875;
-                  }
-                }
+              &:hover {
+                background-color: #ff7875;
               }
             }
           }
         }
       }
+    }
 
-      .form-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
+    .form-buttons {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
 
-        .btn {
-          padding: 10px 20px;
-          font-size: 1rem;
-          font-weight: bold;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
+      .btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
 
-          &.cancel-btn {
-            background-color: #ddd;
-            color: #333;
+        &.cancel-btn {
+          background-color: #6c757d;
+          color: white;
 
-            &:hover {
-              background-color: #bbb;
-            }
+          &:hover {
+            background-color: #5a6268;
           }
+        }
 
-          &.save-btn {
-            background-color: #4caf50;
-            color: white;
+        &.save-btn {
+          background-color: #28a745;
+          color: white;
 
-            &:hover {
-              background-color: #45a049;
-            }
+          &:hover {
+            background-color: #218838;
           }
+        }
 
-          &.add-btn {
-            background-color: #007bff;
-            color: white;
+        &.add-btn {
+          background-color: #007bff;
+          color: white;
 
-            &:hover {
-              background-color: #0056b3;
-            }
+          &:hover {
+            background-color: #0056b3;
           }
+        }
 
-          &.delete-btn {
-            background-color: #ff4d4f;
-            color: white;
+        &.delete-btn {
+          background-color: #ff4d4f;
+          color: white;
 
-            &:hover {
-              background-color: #ff7875;
-            }
+          &:hover {
+            background-color: #ff7875;
           }
         }
       }
     }
   }
+}
+
+// ✅ ปรับให้ Responsive สำหรับอุปกรณ์มือถือ
+@media (max-width: 1024px) {
+  .add-recipe-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+
+  .ingredient-inputs {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .select-ingredient {
+      width: 100%;
+    }
+
+    .quantity-input {
+      width: 100%;
+    }
+
+    .add-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .form-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

@@ -67,7 +67,7 @@
   }
 
   .clear-filter-btn {
-    background: #dc3545;
+    background: #ff364a;
     color: white;
     padding: 10px 15px;
     border: none;
@@ -183,65 +183,74 @@
   }
 
   /* 📌 Modal */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80vw; /* ✅ เพิ่มความกว้างของ Modal */
+    max-width: 1000px; /* ✅ ป้องกันไม่ให้ Modal กว้างเกินไป */
+    max-height: 80vh; /* ป้องกัน Modal สูงเกินไป */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+    overflow: hidden;
     display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      min-width: 400px;
-      max-width: 90%;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      animation: fadeIn 0.3s ease-in-out;
-
-      h2 {
-        margin-bottom: 15px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-
-        th, td {
-          padding: 10px;
-          border: 1px solid #dee2e6;
-          text-align: center;
-        }
-
-        th {
-          background: #007bff;
-          color: white;
-        }
-      }
-
-      .close-btn {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        margin-top: 15px;
-        background: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: 0.3s;
-
-        &:hover {
-          background: #c82333;
-        }
-      }
-    }
+    flex-direction: column;
   }
+  
+  h2 {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  /* ✅ กำหนดขนาดของตารางให้กว้างขึ้น */
+  .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    width: 100%; /* ✅ ให้ตารางเต็ม modal-content */
+  }
+  
+  /* ✅ ป้องกันตารางแคบ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* ทำให้คอลัมน์มีขนาดที่เหมาะสม */
+  }
+  
+  /* ✅ กำหนดขนาดคอลัมน์ให้สมดุล */
+  th, td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    white-space: nowrap; /* ✅ ป้องกันข้อความขึ้นบรรทัดใหม่ */
+  }
+  
+  /* ✅ ปรับขนาด header ของตาราง */
+  th {
+    background: #007bff;
+    color: white;
+  }
+  
+  /* ✅ ปรับขนาดปุ่มปิด */
+  .close-btn {
+    margin-top: 15px;
+    background: #dc3545;
+    color: white;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .close-btn:hover {
+    background: #c82333;
+  }
+  
+    
+  
 
   /* ✨ Responsive Design */
   @media (max-width: 768px) {

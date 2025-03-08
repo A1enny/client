@@ -19,7 +19,7 @@
     }
 
     th {
-      background: linear-gradient(45deg, #007bff, #0056b3);
+      background: var(--primaryColor);
       color: #fff;
       font-weight: bold;
       text-transform: uppercase;

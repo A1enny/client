@@ -9,7 +9,6 @@ import Inventory from "./Components/Inventory/Inventory";
 import ProfileSettings from "./Components/ProfileSettings/ProfileSettings";
 import Report from "./Components/Report/Report";
 import ManageUsers from "./Components/Mmu/Mmu";
-import StartTable from "./Components/Table/StartTable/Starttable";
 import TableDetails from "./Components/Table/TableDetails/TableDetails";
 import Addinventory from "./Components/Inventory/Addinventory/Addinventory";
 import EditIngredientModal from "./Components/Inventory/Edit/EditIngredientModal";
@@ -45,7 +44,6 @@ function App() {
           <Route path="/table" element={<Tables />} />
           <Route path="/edit-table/:id" element={<EditTable />} />
           <Route path="/table-details/:table_id" element={<TableDetails />} />
-          <Route path="/start-table/:table_id" element={<StartTable />} />{" "}
           {/* ✅ เปลี่ยน tableId → table_id */}
         </Route>
         {/* ✅ Route สำหรับ Order */}

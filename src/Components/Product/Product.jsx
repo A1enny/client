@@ -20,7 +20,6 @@ const Product = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [editModalIsOpen, setEditModalIsOpen] = useState(false);
 
-  // ✅ ปรับโครงสร้างข้อมูลเมนูให้มีค่าครบถ้วน
   const [menuData, setMenuData] = useState({
     recipe_id: null,
     menu_category_id: "",
@@ -45,6 +44,7 @@ const Product = () => {
     try {
       const response = await axios.get(`${API_URL}/api/menus`);
       if (response.data.success && Array.isArray(response.data.results)) {
+        // ใช้ข้อมูลที่ได้รับมาแสดงเมนู
         setMenus(response.data.results);
       } else {
         throw new Error("ข้อมูลเมนูไม่ถูกต้อง");
@@ -56,12 +56,6 @@ const Product = () => {
     }
     setLoading(false);
   };
-
-  const filteredMenus = menus.filter((menu) =>
-    selectedCategory === ""
-      ? true
-      : menu.menu_category_id === parseInt(selectedCategory)
-  );
 
   const fetchCategories = async () => {
     try {
@@ -98,8 +92,8 @@ const Product = () => {
 
   const handleAddMenu = async () => {
     console.log("📌 Debug menuData:", menuData);
-
-    if (!menuData.recipe_id || !menuData.menu_category_id || !menuData.price) {
+    if (!menuData.recipe_id || !menuData.menu_category_id || menuData.menu_category_id === "" || !menuData.price) {
+      console.log("🚨 ข้อมูลไม่ครบ: ", menuData);
       Swal.fire("Error", "กรุณาเลือกสูตรอาหาร, หมวดหมู่ และกรอกราคา", "error");
       return;
     }
@@ -181,10 +175,7 @@ const Product = () => {
       <Sidebar />
       <div className="product-content">
         <h1 className="product-title">จัดการเมนูอาหาร</h1>
-        <button
-          className="btn btn-add-menu"
-          onClick={() => setModalIsOpen(true)}
-        >
+        <button className="btn btn-add-menu" onClick={() => setModalIsOpen(true)}>
           + เพิ่มเมนู
         </button>
 
@@ -205,29 +196,27 @@ const Product = () => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    className="menu-image"
-                    src={
-                      menu.image
-                        ? `${API_URL}${menu.image}`
-                        : "/images/default.jpg"
-                    }
+                    src={menu.image || "/images/default.jpg"}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/images/default.jpg";
+                    }}
                     alt={menu.name}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                    }}
                   />
                 </td>
                 <td>{menu.name}</td>
                 <td>{menu.category_name || "ไม่ระบุหมวดหมู่"}</td>
                 <td>{menu.price} บาท</td>
                 <td>
-                  <button
-                    className="btn btn-edit"
-                    onClick={() => openEditModal(menu)}
-                  >
+                  <button className="btn btn-edit" onClick={() => openEditModal(menu)}>
                     แก้ไข
                   </button>
-                  <button
-                    className="btn btn-delete"
-                    onClick={() => handleDelete(menu.id)}
-                  >
+                  <button className="btn btn-delete" onClick={() => handleDelete(menu.id)}>
                     ลบ
                   </button>
                 </td>
@@ -247,9 +236,11 @@ const Product = () => {
             className="modal-select"
             options={categoryOptions}
             value={categoryOptions.find(
-              (opt) => opt.value === selectedCategory
+              (opt) => opt.value === menuData.menu_category_id
             )}
-            onChange={(e) => setSelectedCategory(e.value)}
+            onChange={(e) =>
+              setMenuData((prev) => ({ ...prev, menu_category_id: e.value }))
+            }
             placeholder="เลือกหมวดหมู่..."
           />
 

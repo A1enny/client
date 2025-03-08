@@ -4,49 +4,56 @@ import Swal from "sweetalert2";
 import "../Dashboard/Dashboard.scss";
 import Navbar from "../Layout/Navbar/Navbar";
 import Sidebar from "../Layout/Sidebar/Sidebar";
+import PieChartComponent from "../Dashboard/piechart"; // นำเข้า Pie chart component ที่สร้างไว้
 import {
-  PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, BarChart, Bar, ResponsiveContainer
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Dashboard = () => {
   const [summary, setSummary] = useState({});
-  const [pieData, setPieData] = useState([]);
   const [lineData, setLineData] = useState([]);
-  const [barData, setBarData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStock, setLowStock] = useState([]);
-  const [reservations, setReservations] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-
-  const COLORS = ["#0088FE", "#FF8042", "#00C49F", "#FFBB28"];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [summaryRes, pieRes, lineRes, barRes, ordersRes, stockRes, reservationsRes, notificationsRes] =
-          await Promise.all([
-            axios.get(`${API_URL}/api/dashboard/sales/summary`),
-            axios.get(`${API_URL}/api/dashboard/sales/pie`),
-            axios.get(`${API_URL}/api/dashboard/sales/line`),
-            axios.get(`${API_URL}/api/dashboard/sales/bar`),
-            axios.get(`${API_URL}/api/dashboard/orders/recent`),
-            axios.get(`${API_URL}/api/dashboard/inventory/low-stock`),
-            axios.get(`${API_URL}/api/dashboard/reservations/upcoming`),
-            axios.get(`${API_URL}/api/dashboard/notifications`),
-          ]);
+        const [
+          summaryRes,
+          pieRes,
+          lineRes,
+          ordersRes,
+          stockRes,
+          topProductsRes,
+        ] = await Promise.all([
+          axios.get(`${API_URL}/api/sales/summary`),
+          axios.get(`${API_URL}/api/sales/pie`),
+          axios.get(`${API_URL}/api/sales/line`),
+          axios.get(`${API_URL}/api/orders/recent`),
+          axios.get(`${API_URL}/api/inventory/low-stock`),
+          axios.get(`${API_URL}/api/menus/top`),
+        ]);
+
+        console.log("recentOrders: ", ordersRes.data); // แก้ไขจาก recentRes เป็น ordersRes
+        console.log("Summary Data: ", summaryRes.data); // Debugging summary data
+        console.log("Pie Data:", pieRes.data); // ตรวจสอบข้อมูล Pie จาก API
+        console.log("Low Stock Data: ", stockRes.data);
 
         setSummary(summaryRes.data);
-        setPieData(pieRes.data);
         setLineData(lineRes.data);
-        setBarData(barRes.data);
         setRecentOrders(ordersRes.data);
         setLowStock(stockRes.data);
-        setReservations(reservationsRes.data);
-        setNotifications(notificationsRes.data);
+        setTopProducts(topProductsRes.data);
       } catch (error) {
         Swal.fire("❌ ข้อผิดพลาด", "ไม่สามารถโหลดข้อมูลได้", "error");
       }
@@ -69,14 +76,32 @@ const Dashboard = () => {
           {/* 📌 สรุปยอดขาย */}
           <div className="infoCards">
             {[
-              { title: "ยอดขายวันนี้", value: summary.total_sales || 0, unit: "บาท" },
-              { title: "รายการสั่งซื้อ", value: summary.total_orders || 0, unit: "รายการ" },
-              { title: "ลูกค้าทั้งหมด", value: summary.total_customers || 0, unit: "ราย" },
-              { title: "ยอดขายเฉลี่ย", value: summary.average_sales_per_order || 0, unit: "บาท" }
+              {
+                title: "ยอดขายวันนี้",
+                value: summary.total_sales || 0,
+                unit: "บาท",
+              },
+              {
+                title: "รายการสั่งซื้อ",
+                value: summary.total_orders || 0,
+                unit: "รายการ",
+              },
+              {
+                title: "ลูกค้าทั้งหมด",
+                value: summary.total_customers || 0,
+                unit: "ราย",
+              },
+              {
+                title: "ยอดขายเฉลี่ย",
+                value: summary.average_sales_per_order || 0,
+                unit: "บาท",
+              },
             ].map((card, index) => (
               <div className="card" key={index}>
                 <h3>{card.title}</h3>
-                <p>{card.value} {card.unit}</p>
+                <p>
+                  {card.value} {card.unit}
+                </p>
               </div>
             ))}
           </div>
@@ -85,15 +110,7 @@ const Dashboard = () => {
           <div className="charts">
             <div className="chartContainer">
               <h4>สัดส่วนยอดขาย</h4>
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label>
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              <PieChartComponent />
             </div>
 
             <div className="chartContainer">
@@ -105,24 +122,14 @@ const Dashboard = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="total_sales" stroke="#0088FE" />
+                  <Line
+                    type="monotone"
+                    dataKey="total_sales"
+                    stroke="#0088FE"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
-
-          {/* 📊 กราฟยอดขายแยกตามช่องทาง */}
-          <div className="chartContainer">
-            <h4>ยอดขายแยกตามช่องทาง</h4>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={barData}>
-                <XAxis dataKey="channel" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="sales" fill="#0088FE" />
-              </BarChart>
-            </ResponsiveContainer>
           </div>
 
           {/* 📌 ออเดอร์ล่าสุด */}
@@ -140,10 +147,34 @@ const Dashboard = () => {
               <tbody>
                 {recentOrders.map((order, index) => (
                   <tr key={index}>
-                    <td>{order.table}</td>
-                    <td>{order.items}</td>
+                    <td>{order.table_number}</td>
+                    {/* ตรวจสอบการแสดงรายการเมนู */}
+                    <td>{order.recipe_name || "ไม่มีรายการ"}</td>
                     <td>{order.status}</td>
-                    <td>{order.time}</td>
+                    <td>{order.order_time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 📌 สินค้าขายดี */}
+          <div className="tableContainer">
+            <h4>สินค้าขายดี</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>สินค้า</th>
+                  <th>จำนวนที่ขาย</th>
+                  <th>ยอดขายรวม</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topProducts.map((product, index) => (
+                  <tr key={index}>
+                    <td>{product.name}</td>
+                    <td>{product.quantity_sold}</td>
+                    <td>{product.total_sales}</td>
                   </tr>
                 ))}
               </tbody>
@@ -163,31 +194,8 @@ const Dashboard = () => {
               <tbody>
                 {lowStock.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.name}</td>
-                    <td>{item.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 📌 การจองโต๊ะ */}
-          <div className="tableContainer">
-            <h4>การจองโต๊ะ</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>ลูกค้า</th>
-                  <th>จำนวนที่นั่ง</th>
-                  <th>เวลา</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reservations.map((res, index) => (
-                  <tr key={index}>
-                    <td>{res.customer}</td>
-                    <td>{res.seats}</td>
-                    <td>{res.time}</td>
+                    <td>{item.material_name}</td>
+                    <td>{item.current_quantity}</td>
                   </tr>
                 ))}
               </tbody>

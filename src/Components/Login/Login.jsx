@@ -89,9 +89,6 @@ const Login = () => {
       <div className="logoContainer">
         <img src={Logo} alt="Logo Image" />
       </div>
-      <div className="lang">
-        <span>TH | EN</span>
-      </div>
       <div className="contanier flex">
         <div className="textDiv">
           <h1 className="title">เข้าสู่ระบบ</h1>

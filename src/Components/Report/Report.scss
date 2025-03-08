@@ -1,15 +1,19 @@
+/* 🌟 ตั้งค่า Layout หลักของหน้า Report */
 .report-container {
   margin-top: 3.9rem;
   display: flex;
   flex-direction: row;
-  min-height: 100vh;
+  min-height: 100vh; /* ✅ ทำให้เต็มหน้าจอ */
+  background-color: #f5f7fa;
 }
 
+/* ✅ ปรับเมื่อ Sidebar ถูกย่อ */
 .sidebar.collapsed ~ .report-content {
   margin-left: 75px;
   margin-right: 10px;
 }
 
+/* 🌟 พื้นที่เนื้อหาหลัก */
 .report-content {
   flex: 1;
   padding: 20px;
@@ -26,44 +30,124 @@
     }
   }
 
-  .report-filters {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    align-items: center;
-   
-    .search-input {
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      flex: 1;
-      font-size: 14px;
-      transition: all 0.3s ease-in-out;
+  /* 🎯 ปรับ Layout ของตัวกรองรายงาน */
+.report-filters {
+  display: flex; /* ✅ เรียงแนวนอน */
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap; /* ❌ ห้ามขึ้นบรรทัดใหม่ */
+  overflow-x: auto; /* ✅ ถ้ามีเนื้อหาเกิน ให้เลื่อนซ้ายขวา */
+  padding: 10px 0;
 
-      &:focus {
-        outline: none;
-        border-color: #4e8df5;
-        box-shadow: 0 0 5px rgba(78, 141, 245, 0.5);
-      }
-    }
-
-    .filter-button {
-      background-color: #4e8df5;
-      color: #fff;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease-in-out;
-
-      &:hover {
-        background-color: #357ae8;
-        transform: scale(1.05);
-      }
-    }
+  /* ✅ ปรับขนาดของ input และปุ่มให้พอดีกัน */
+  .search-input {
+    flex-grow: 1; /* ✅ ขยายให้เต็มที่ */
+    min-width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
   }
 
+  input[type="date"] {
+    flex-grow: 0.5;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  /* ✅ ปรับปุ่มให้ขนาดไม่ใหญ่เกินไป */
+  .refresh,
+  .reset {
+    min-width: 100px; /* ✅ ลดขนาดปุ่ม */
+    padding: 10px 12px;
+    background-color: #4e8df5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* ✅ ป้องกันขึ้นบรรทัดใหม่ */
+    transition: all 0.3s ease-in-out;
+  }
+
+  .reset {
+    background-color: #ff9800;
+  }
+
+  .refresh:hover {
+    background-color: #357ae8;
+    transform: scale(1.01);
+  }
+
+  .reset:hover {
+    background-color: #e68900;
+    transform: scale(1.01);
+  }
+}
+
+/* 🎯 ปรับให้ปุ่ม PDF และ Excel อยู่แนวเดียวกัน */
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+
+  button {
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap; /* ✅ ป้องกันข้อความขึ้นบรรทัดใหม่ */
+  }
+
+  .export-pdf-button {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .export-excel-button {
+    background-color: #28a745;
+    color: white;
+  }
+
+  .export-pdf-button:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+  }
+
+  .export-excel-button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+  }
+}
+
+/* ✅ Responsive: ถ้าหน้าจอเล็ก ให้กลับมาเป็นแนวตั้ง */
+@media screen and (max-width: 768px) {
+  .report-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+}
+
+
+  /* 🎯 ปุ่ม Export */
   .export-buttons {
     display: flex;
     gap: 10px;
@@ -105,6 +189,7 @@
     }
   }
 
+  /* 📊 ตารางรายงาน */
   .report-table-container {
     overflow-x: auto;
   }
@@ -118,17 +203,19 @@
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 
     th {
-      background-color: #4e8df5;
+      background: var(--primaryColor);
       color: white;
-      text-align: left;
-      padding: 12px;
+      text-align: center;
+      padding: 15px;
       font-size: 14px;
+      text-transform: uppercase;
     }
 
     td {
       padding: 12px;
       border: 1px solid #ddd;
       font-size: 14px;
+      text-align: center;
     }
 
     tbody tr:nth-child(even) {
@@ -140,6 +227,7 @@
       transition: background-color 0.3s ease-in-out;
     }
 
+    /* 🎯 ปุ่มดาวน์โหลด */
     .download-button {
       padding: 8px 12px;
       background-color: #28a745;
@@ -157,6 +245,8 @@
     }
   }
 }
+
+/* 🎯 ปุ่ม Refresh */
 .refesh {
   min-width: 150px;
   background-color: #4e8df5;
@@ -175,5 +265,35 @@
   &:hover {
     background-color: #357ae8;
     transform: scale(1.05);
+  }
+}
+
+/* 🛠 Responsive */
+@media screen and (max-width: 768px) {
+  .report-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  .report-filters {
+    flex-direction: column;
+    gap: 5px;
+
+    .search-input {
+      width: 100%;
+    }
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .report-table {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: 10px;
+    }
   }
 }

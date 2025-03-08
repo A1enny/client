@@ -1,308 +1,105 @@
-// ✅ โครงสร้างหลักของหน้า
+// TableDetails.scss
 .TableDetails-container {
+  margin-top: 3.75rem;
   display: flex;
-  flex-direction: row;
   min-height: 100vh;
-  background-color: #f4f6f9;
+  background-color: #f5f7fa;
 }
 
-// ✅ กำหนดพื้นที่เนื้อหา
 .TableDetails-content {
-  flex: 1;
-  padding: 20px;
-  margin-left: 250px; // เผื่อพื้นที่ Sidebar
-  transition: margin-left 0.3s ease;
+  flex-grow: 1;
+  padding: 25px;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease-in-out;
 
-  h1 {
-    font-size: 1.8rem;
+  .table-info {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+
+    h1 {
+      color: #333;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+      margin: 5px 0;
+    }
+  }
+
+  .order-list {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .order-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 4px solid #3371c8;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  .total-amount {
+    margin-top: 15px;
+    text-align: right;
+    font-size: 18px;
+    font-weight: bold;
     color: #333;
-    margin-bottom: 15px;
   }
 
-  h2 {
-    font-size: 1.5rem;
-    color: #007bff;
-    margin-top: 20px;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
-  }
-
-  p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 8px;
-  }
-}
-
-// ✅ สถานะโต๊ะ (พร้อม Animation)
-.status {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 5px;
-  font-weight: bold;
-  text-align: center;
-  min-width: 120px;
-  transition: all 0.3s ease-in-out;
-
-  &.available {
-    background-color: #28a745;
-    color: white;
-  }
-
-  &.reserved {
-    background-color: #ffc107;
-    color: black;
-  }
-
-  &.in-use {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.needs-cleaning {
-    background-color: #6c757d;
-    color: white;
-  }
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-// ✅ ตารางแสดงออร์เดอร์ (ปรับดีไซน์)
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-
-  th, td {
-    padding: 12px;
+  .no-orders {
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+    color: #999;
   }
 
-  th {
-    background-color: #007bff;
-    color: white;
-  }
-
-  tr {
-    transition: background 0.3s ease-in-out;
-
-    &:hover {
-      background-color: #f1f1f1;
-      cursor: pointer;
-    }
-  }
-}
-
-// ✅ ปุ่ม Action (แก้ไข / ลบ)
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
-
-  button {
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    border: none;
-  }
-
-  .edit-btn {
-    background: #007bff;
-    color: white;
-
-    &:hover {
-      background: #0056b3;
-    }
-  }
-
-  .delete-btn {
-    background: #dc3545;
-    color: white;
-
-    &:hover {
-      background: #b02a37;
-    }
-  }
-}
-
-// ✅ ปรับปรุงให้รองรับ Responsive
-@media (max-width: 768px) {
-  .TableDetails-content {
-    margin-left: 0;
-    padding: 15px;
-  }
-
-  .order-table th, .order-table td {
-    padding: 8px;
-    font-size: 0.9rem;
-  }
-
-  button {
-    min-width: 120px;
-    font-size: 0.9rem;
-  }
-}
-// ✅ โครงสร้างหลักของหน้า
-.TableDetails-container {
-  display: flex;
-  flex-direction: row;
-  min-height: 100vh;
-  background-color: #f4f6f9;
-}
-
-// ✅ กำหนดพื้นที่เนื้อหา
-.TableDetails-content {
-  flex: 1;
-  padding: 20px;
-  margin-left: 250px; // เผื่อพื้นที่ Sidebar
-  transition: margin-left 0.3s ease;
-
-  h1 {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 15px;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    color: #007bff;
-    margin-top: 20px;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
-  }
-
-  p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 8px;
-  }
-}
-
-// ✅ สถานะโต๊ะ (พร้อม Animation)
-.status {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 5px;
-  font-weight: bold;
-  text-align: center;
-  min-width: 120px;
-  transition: all 0.3s ease-in-out;
-
-  &.available {
+  .btn-confirm {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 15px;
     background-color: #28a745;
-    color: white;
-  }
-
-  &.reserved {
-    background-color: #ffc107;
-    color: black;
-  }
-
-  &.in-use {
-    background-color: #dc3545;
-    color: white;
-  }
-
-  &.needs-cleaning {
-    background-color: #6c757d;
-    color: white;
-  }
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-// ✅ ตารางแสดงออร์เดอร์ (ปรับดีไซน์)
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-
-  th, td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-
-  th {
-    background-color: #007bff;
-    color: white;
-  }
-
-  tr {
-    transition: background 0.3s ease-in-out;
-
-    &:hover {
-      background-color: #f1f1f1;
-      cursor: pointer;
-    }
-  }
-}
-
-// ✅ ปุ่ม Action (แก้ไข / ลบ)
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
-
-  button {
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
+    color: #fff;
     border: none;
-  }
-
-  .edit-btn {
-    background: #007bff;
-    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
 
     &:hover {
-      background: #0056b3;
+      background-color: #218838;
     }
   }
 
-  .delete-btn {
-    background: #dc3545;
-    color: white;
+  .btn-cancel {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
 
     &:hover {
-      background: #b02a37;
+      background-color: #c82333;
     }
   }
 }
 
-// ✅ ปรับปรุงให้รองรับ Responsive
-@media (max-width: 768px) {
-  .TableDetails-content {
-    margin-left: 0;
-    padding: 15px;
-  }
-
-  .order-table th, .order-table td {
-    padding: 8px;
-    font-size: 0.9rem;
-  }
-
-  button {
-    min-width: 120px;
-    font-size: 0.9rem;
-  }
+.sidebar.collapsed ~ .TableDetails-content {
+  margin-left: 75px;
+  margin-right: 10px;
 }

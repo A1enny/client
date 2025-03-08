@@ -46,13 +46,13 @@ const Sidebar = () => {
 
           {userRole === "staff" ? (
             <>
+              <a href="/table" className="menu-item">
+                <FaChair />
+                <span>จัดการโต๊ะอาหาร</span>
+              </a>
               <a href="/Inventory" className="menu-item">
                 <FaWarehouse />
                 <span>จัดการคลังวัตถุดิบ</span>
-              </a>
-              <a href="/report" className="menu-item">
-                <FaChartBar />
-                <span>ออกรายงาน</span>
               </a>
             </>
           ) : (

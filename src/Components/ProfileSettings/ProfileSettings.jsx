@@ -14,9 +14,6 @@ const ProfileSettings = () => {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     fullName: "",
-    phone: "",
-    address: "",
-    profileImage: "",
     role: "",
   });
 
@@ -104,17 +101,39 @@ const ProfileSettings = () => {
 
   // ✅ ฟังก์ชันบันทึกข้อมูลโปรไฟล์
   const handleSaveDetails = async () => {
+    if (!formData.fullName || formData.fullName.trim() === "") {
+      Swal.fire("⚠️ กรุณากรอกชื่อผู้ใช้", "", "warning");
+      return;
+    }
+  
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`/api/users/${userId}`, formData, {
+  
+      const payload = {
+        username: formData.fullName.trim(),
+        role: formData.role && formData.role.trim() !== "" ? formData.role : "staff",
+      };
+  
+      console.log("📤 Sending Payload:", payload);
+  
+      await axios.put(`/api/users/${userId}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Swal.fire("✅ บันทึกข้อมูลสำเร็จ!", "", "success");
+  
+      // ✅ อัปเดต localStorage
+      localStorage.setItem("username", formData.fullName.trim());
+  
+      Swal.fire("✅ บันทึกข้อมูลสำเร็จ!", "", "success").then(() => {
+        window.location.reload(); // ✅ Reload เพื่อให้ Navbar อัปเดต
+      });
+  
       setEditMode(false);
     } catch (error) {
+      console.error("❌ Error updating user:", error);
       Swal.fire("❌ เกิดข้อผิดพลาด", "ไม่สามารถบันทึกข้อมูลได้", "error");
     }
   };
+  
 
   // ✅ ฟังก์ชันเปลี่ยนรหัสผ่าน
   const handlePasswordChange = async () => {
