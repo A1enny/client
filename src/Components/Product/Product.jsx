@@ -6,6 +6,7 @@ import axios from "../../Api/axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import Modal from "react-modal";
+import AddMenuModal from "./AddMenuModal";
 
 Modal.setAppElement("#root");
 
@@ -179,6 +180,15 @@ const Product = () => {
           + เพิ่มเมนู
         </button>
 
+        <AddMenuModal
+        modalIsOpen={modalIsOpen}
+        setModalIsOpen={setModalIsOpen}
+        menuData={menuData}
+        setMenuData={setMenuData}
+        categoryOptions={categoryOptions}
+        recipes={recipes}
+        handleAddMenu={handleAddMenu}
+      />
         <table className="product-table">
           <thead>
             <tr>
@@ -224,61 +234,6 @@ const Product = () => {
             ))}
           </tbody>
         </table>
-        <Modal
-          className="modal-content"
-          isOpen={modalIsOpen}
-          onRequestClose={() => setModalIsOpen(false)}
-        >
-          <h2 className="modal-title">เพิ่มเมนู</h2>
-
-          {/* ✅ เลือกหมวดหมู่ */}
-          <Select
-            className="modal-select"
-            options={categoryOptions}
-            value={categoryOptions.find(
-              (opt) => opt.value === menuData.menu_category_id
-            )}
-            onChange={(e) =>
-              setMenuData((prev) => ({ ...prev, menu_category_id: e.value }))
-            }
-            placeholder="เลือกหมวดหมู่..."
-          />
-
-          {/* ✅ เลือกสูตรอาหาร */}
-          <Select
-            className="modal-select"
-            options={
-              recipes.length > 0
-                ? recipes.map((r) => ({
-                    value: r.recipe_id,
-                    label: r.recipe_name,
-                  }))
-                : []
-            }
-            value={
-              recipes.find((r) => r.recipe_id === menuData.recipe_id) || ""
-            }
-            onChange={(e) =>
-              setMenuData((prev) => ({ ...prev, recipe_id: e.value }))
-            }
-            placeholder="เลือกสูตรอาหาร"
-          />
-
-          {/* ✅ กรอกราคา */}
-          <input
-            className="modal-input"
-            type="number"
-            placeholder="ราคา"
-            value={menuData.price || ""}
-            onChange={(e) =>
-              setMenuData((prev) => ({ ...prev, price: e.target.value }))
-            }
-          />
-
-          <button className="btn btn-save" onClick={handleAddMenu}>
-            เพิ่ม
-          </button>
-        </Modal>
 
         {/* ✅ Modal แก้ไขเมนู */}
         <Modal

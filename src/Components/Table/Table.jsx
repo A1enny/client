@@ -8,6 +8,7 @@ import Sidebar from "../Layout/Sidebar/Sidebar";
 import Navbar from "../Layout/Navbar/Navbar";
 import "./Table.scss";
 import EditTableModal from "./EditTable/EditTable";
+import AddTableModal from "./AddTableModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,12 +32,18 @@ const Table = () => {
       Swal.fire("❌", "ลบโต๊ะไม่สำเร็จ", "error");
     }
   };
-  
+
   const fetchTables = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/tables`, { params: filters });
-      const sortedTables = response.data.sort((a, b) => filters.sort === "asc" ? a.table_number - b.table_number : b.table_number - a.table_number);
+      const response = await axios.get(`${API_URL}/api/tables`, {
+        params: filters,
+      });
+      const sortedTables = response.data.sort((a, b) =>
+        filters.sort === "asc"
+          ? a.table_number - b.table_number
+          : b.table_number - a.table_number
+      );
       setTables(sortedTables);
     } catch (error) {
       console.error("❌ Error:", error);
@@ -55,6 +62,29 @@ const Table = () => {
     return () => socket.off("tableUpdated");
   }, [fetchTables]);
 
+  const handleAddTable = async () => {
+    if (!newTable.table_number || !newTable.seats) {
+      Swal.fire("Error", "กรุณากรอกหมายเลขโต๊ะและจำนวนที่นั่ง", "error");
+      return;
+    }
+
+    const newTableData = {
+      table_number: parseInt(newTable.table_number, 10),
+      seats: parseInt(newTable.seats, 10),
+    };
+
+    try {
+      await axios.post(`${API_URL}/api/tables`, newTableData);
+      setIsModalOpen(false);
+      setNewTable({ table_number: "", seats: "" }); // เคลียร์ค่า
+      fetchTables(); // โหลดข้อมูลใหม่
+      Swal.fire("สำเร็จ", "เพิ่มโต๊ะเรียบร้อย", "success");
+    } catch (error) {
+      console.error("❌ Error adding table:", error);
+      Swal.fire("Error", "ไม่สามารถเพิ่มโต๊ะได้", "error");
+    }
+  };
+
   return (
     <div className="table-page">
       <Navbar />
@@ -62,8 +92,17 @@ const Table = () => {
       <div className="table-main">
         <div className="table-header">
           <h1>จัดการโต๊ะอาหาร</h1>
-          <button className="btn-add" onClick={() => setIsModalOpen(true)}>เพิ่มโต๊ะ</button>
+          <button className="btn-add" onClick={() => setIsModalOpen(true)}>
+            เพิ่มโต๊ะ
+          </button>
         </div>
+        <AddTableModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          newTable={newTable}
+          setNewTable={setNewTable}
+          handleAddTable={handleAddTable}
+        />
 
         <div className="filter-section">
           <select
@@ -107,12 +146,24 @@ const Table = () => {
                     />
                   </td>
                   <td>
-                    <button onClick={() => {
-                      setSelectedTable(table);
-                      setIsEditModalOpen(true);
-                    }}>✏️ แก้ไข</button>
-                    <button onClick={() => navigate(`/table-details/${table.table_id}`)}>ℹ️ รายละเอียด</button>
-                    <button onClick={() => handleDeleteTable(table.table_id)}>🗑️ ลบ</button>
+                    <button
+                      onClick={() => {
+                        setSelectedTable(table);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
+                      ✏️ แก้ไข
+                    </button>
+                    <button
+                      onClick={() =>
+                        navigate(`/table-details/${table.table_id}`)
+                      }
+                    >
+                      ℹ️ รายละเอียด
+                    </button>
+                    <button onClick={() => handleDeleteTable(table.table_id)}>
+                      🗑️ ลบ
+                    </button>
                   </td>
                 </tr>
               ))}
